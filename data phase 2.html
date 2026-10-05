@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Data Purge Studio — focused studio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+x-dc{display:block}
+body{margin:0;font-family:'Geist',system-ui,sans-serif;background:#F4F3EF;color:#15171C;-webkit-font-smoothing:antialiased}
+a{color:#3F37C9}a:hover{color:#2E279E}
+button,input,select{font-family:inherit}
+
+/* Work area: same tokens and rules as .work in dataset-tabs-combine.html */
+.work{--bg:#F4F3EF;--sunken:#FAF9F6;--line:#E4E2DC;--line-soft:#ECEAE4;--line-strong:#D9D6CE;--ink:#15171C;--ink-2:#3C3F46;--muted:#5B5E66;--faint:#8C8F96;--accent:#3F37C9;--accent-ink:#2E279E;--accent-soft:#EFEEFC;--accent-ring:#E3E1FA;--accent-tint:#F7F6FE;--warn:#B4530A;--warn-ink:#6E3207;--warn-soft:#FDF1E3;--err:#B42318;--err-ink:#8F1B12;--err-soft:#FCEDEB;--mono:'Geist Mono',ui-monospace,monospace;font-size:14px}
+.work,.work *{box-sizing:border-box}
+.work button,.work input,.work select,.work textarea{font:inherit;color:inherit}
+.work button{cursor:pointer}
+.work button:disabled{cursor:default;opacity:.5}
+.work :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.work{flex:1;min-height:0;display:flex;gap:12px;padding:0 20px 20px}
+.work .card{background:#fff;border:1px solid var(--line);border-radius:12px}
+.work .data{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.work .data-top{height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 12px 0 14px;border-bottom:1px solid var(--line)}
+.work .search{display:flex;align-items:center;gap:8px;height:30px;width:250px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunken)}
+.work .search input{border:0;outline:none;background:transparent;width:100%;font-size:13px}
+.work .scroll{flex:1;min-height:0;overflow:auto}
+.work table{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+.work th{position:sticky;top:0;z-index:1;height:46px;background:var(--sunken);text-align:left;padding:0 12px;font-weight:500;border-bottom:1px solid var(--line);white-space:nowrap}
+.work th .t{display:block;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--muted)}
+.work td{height:38px;padding:0 12px;border-bottom:1px solid #F0EEE9;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.work td.num,.work th.num{text-align:right}
+.work td.num,.work td.code{font-family:var(--mono);font-size:12px}
+.work td.hl-col{background:var(--accent-tint)}
+.work th.hl-col{background:var(--accent-soft);color:var(--accent-ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.work td.hl-warn{background:var(--warn-soft);color:var(--warn);font-family:var(--mono);font-size:11px;font-weight:500}
+.work .foot-note{flex-shrink:0;padding:8px 14px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+
+.work .ops{width:350px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden}
+.work .ops-head{padding:18px 18px 12px;display:flex;flex-direction:column;gap:14px}
+.work .seg{display:grid;gap:2px;padding:3px;background:#F1EFEA;border-radius:10px}
+.work .seg button{height:30px;border:0;border-radius:8px;background:transparent;font-size:13px;font-weight:500;color:var(--muted)}
+.work .seg button[aria-selected="true"],.work .seg button[aria-checked="true"]{background:#fff;box-shadow:0 1px 2px rgba(21,23,28,.08);color:var(--ink)}
+.work .op-list{display:flex;flex-direction:column;padding:0 8px 8px;overflow:auto}
+.work .op{display:flex;align-items:center;gap:12px;padding:11px 10px;border:0;border-radius:10px;background:transparent;text-align:left;width:100%}
+.work .op:hover:not(:disabled){background:var(--sunken)}
+.work .op .ic{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.work .op .nm{font-size:14px;font-weight:500}
+.work .op .ds{font-size:12px;color:var(--muted)}
+.work .count{font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:10px;background:var(--line-soft);color:var(--ink-2)}
+.work .count-warn{background:var(--warn-soft);color:var(--warn-ink)}
+.work .op-body{padding:18px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;overflow:auto}
+.work .op-back{padding:12px 18px;border-bottom:1px solid var(--line-soft)}
+.work .op-back button{display:flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 2px;border:0;background:transparent;font-size:13px;font-weight:500;color:var(--muted)}
+.work .op-title{margin:0;font-size:17px;font-weight:600}
+.work .op-sub{margin:4px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.work .field{display:flex;flex-direction:column;gap:6px}
+.work .field>span{font-size:12px;font-weight:500;color:var(--ink-2)}
+.work .input{height:38px;padding:0 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;font-family:var(--mono);font-size:13px;width:100%}
+.work .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
+.work .note{display:flex;gap:10px;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.45}
+.work .note.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.work .note.ok{background:#E3F2E8;color:#14532B}
+.work .note.info{background:var(--bg);color:var(--ink-2)}
+.work .btn{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line-strong);background:#fff;font-weight:500;display:inline-flex;align-items:center;gap:8px;justify-content:center;white-space:nowrap}
+.work .btn:hover:not(:disabled){background:var(--sunken)}
+.work .btn-primary{border:0;background:var(--accent);color:#fff}
+.work .btn-primary:hover:not(:disabled){background:var(--accent-ink)}
+.work .btn-lg{height:40px}
+.work .op-actions{margin-top:auto;display:flex;gap:8px}
+.work .op-actions .btn-primary{flex:1}
+.work td.empty{color:var(--faint)}
+.work td.src-r:not(.hl-col):not(.hl-warn){background:#F2F8FB}
+.work tr.unm td:not(.hl-col):not(.hl-warn){background:#FFFBF5}
+.work #dataFrom{display:flex;align-items:center;gap:14px}
+.work .lg{display:flex;align-items:center;gap:6px}
+.work .banner{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;border-bottom:1px solid #F3D9B8;background:var(--warn-soft);color:var(--warn-ink)}
+.work .mono{font-family:var(--mono)}
+.work textarea.input{height:72px;padding:10px;font-family:inherit;resize:none}
+.work .chips{display:flex;flex-wrap:wrap;gap:6px}
+.work .chip{height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line);background:#fff;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.work .chip.g[aria-pressed="true"]{border-color:#3E9A62;background:#E3F2E8;color:#1D6B3A}
+.work .radio{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;text-align:left;width:100%}
+.work .radio[aria-checked="true"]{border-color:var(--accent);background:var(--accent-tint)}
+.work .radio .dot{width:14px;height:14px;flex-shrink:0;border-radius:7px;border:1.5px solid var(--faint)}
+.work .radio[aria-checked="true"] .dot{border:4px solid var(--accent)}
+.work .radio b{display:block;font-size:13px;font-weight:500}
+.work .radio small{font-size:11px;color:var(--muted)}
+.work [hidden]{display:none !important}
+.work .pane{display:flex;flex-direction:column;flex:1;min-height:0}
+</style>
+</helmet>
+<div style="width: 100%; height: 100vh; min-width: 1024px; min-height: 640px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; background: #F4F3EF; font-family: 'Geist', system-ui, sans-serif; color: #15171C; overflow: hidden">
+
+  <!-- 1. App bar: identity only -->
+  <header style="height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #FFFFFF">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <button id="backBtn" aria-label="Back" onclick="history.back()" style="width: 32px; height: 32px; flex-shrink: 0; border: 0; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      </button>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAgMDAwMDBAcFBAQEBAkGBwUHCgkLCwoJCgoMDREODAwQDAoKDhQPEBESExMTCw4UFhQSFhESExL/2wBDAQMDAwQEBAgFBQgSDAoMEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhL/wAARCACAAIADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6KKTOOtAC0VGZQDgc1Eb6IdXjB/3xTSbC5Zoqt9vi/56R/99ij7dF/z0j/77FPlYros0VEs4IB7HofWpAQelSMWiiigAooooAKKKKACiiigArN1nV7fSLC5vL+VYba0iaWaQ9FRRkn8q0WOFNeJ/tVa1JpHwU8Tywlg0kEcJ2nBw8qqf516GVYL67jaWHvbnko/e0jlx2J+r4apW/lTf3K58nfGf9qDxN8RtXubfQb640bw9G5W3t7aQo8yj+KRhySfTpXkh8Q6oxJOp35J/wCnl/8AGs+wtLjU722sdLgmu7y7lWG3t4ULPLIxwqqO5JIFfQenfsK/Em9sop7u68MafLIuWtp76R3j9mKRlc/Qn61/UkqmQ8P0IUJyhSj0vu7de782fhqpZrm1WVWKlN9ey8uy9Dwv/hINT/6CV/8A+BL/AONH/CQan/0Er/8A8CX/AMa99/4YK+If/QW8I/8AgVP/APGqP+GCviH/ANBbwj/4FT//ABqsP9cOGv8AoJh/XyNP9XM5/wCfMv6+Z558M/j/AOLvhnq8NxZapdX2n7x9osLqUyRyr3GD0PuK/RH4dfEPS/iL4Ys9b8PzCS2ulG+MtloX7o3uP1618Y/8MFfEP/oLeEf/AAKn/wDjVdT4G/ZZ+NXw2upJ/Bvizwzp/m/62MXc7RyfVTDg18FxhS4XzmCq4bFU6dZddUpLs7Lfs/kfV8OzzvLpezrUJSpvppdel3+B9oCZT3pfNX1r5wHg39pID/kbvA3/AH7f/wCM0v8Awh37SX/Q3eBv+/b/APxmvzX/AFdo/wDQdR/8Cl/8gfZ/2vP/AKBqn3L/AOSPo7zV9aPNX1r5x/4Q/wDaT/6G7wN/37f/AOM0f8If+0n/ANDd4G/79v8A/GaP9XaX/QdR/wDApf8AyAf2xP8A6Bqn3L/5I+jvNX1pwYHoa+ZtQ8NftMWFpJPa+IfBmoyRDK20I2vJ7AvEFz9SPrXPfCT9su8m8Tf8Iz8ZdPj0q+FwbVrxIzF5EwO0pNH254yOnvW8eD8XWoTrYOrCtyatQleSXezSf3Gb4hw9OrGniISp82zkrJ/NNn13RUEE4kUEEEEZBByDU9fJNWPeGSfcNfPn7ZEwi+B3iPJ5Jtv/AEojr6Dk4Q18/ftG6VaeMvDd5oesXU1ppkrRSXkkGPNZEkVvLTPAdyAoJ6ZJ5xivf4Ymqea4eo9ozi/uaZ5WeWeX1lfeLX4HzJ+zP4YsNNnsvHer3T/brW4lGkWqY2pgGNpn45PLBR2xnnivpv8A4XTc/wDP7N/3wP8ACvLdE1w+GdMg0vwhHHoGlWoxBaWOV2gnJLSH53YkklmJyT2rVj8bayf+YtqP/gS3+NfpWd4WvmmMliK0U+iT6Rvotvv31vqfnOXZvQwVFUaV/O3V9Xv/AEjvf+F1XP8Az+y/98D/AAo/4XVc/wDP7L/3wP8ACuLj8Z6ueuq35/7eG/xqzH4y1Y9dUv8A/wACG/xrxHkUV/y7j/XyPSjxFf7Uv6+Z1f8Awuq5/wCf2X/vgf4Uf8Lquf8An9m/74H+Fc4njHVe+p3x/wC27f41KPGGqf8AQSvf+/xrN5NFf8u4/wBfI1WfX+3L+vmb3/C6rr/n9m/74H+FH/C6rr/n9m/74H+FYJ8Yap/0Er3/AL/tUT+MdVPTUr4f9t2oWTR/59x/r5A8+a+3L+vmdH/wuq6/5/Zv++B/hR/wuq5/5/Zv++B/hXKP4y1YdNUv/wDwIb/Gq0njPVx01XUP/Ahv8a0WRRf/AC7j/XyM5cRNfal/XzO0/wCF03P/AD+zf98D/CvmT9pnwzY6lNe+PNHu5Bf3VxENWtnwFYkCNZkwODkKGHfOeOa9ek8a6yP+YtqP/gS3+NZWt64fEumT6X4vjj1/SrobZ7S+y24ZyCsg+dGBAIZSMEd69vJMLXyvFxxFCKXRpdY6XW33Xtr1PMzHN6GNoujVv5X6Po9z3j9mrxhJ4w+EHhi+upTNP9j8mRycljGxTn3+XH4V66pyBXz7+zjplr4M8NWeh6PdT3emRNLJZyT481Y3lZvLfHBZCdpI4OAcDOK+gYzlBX5hxBCnHMq3s1aLlJr0u7H6TlFRzwNJyd3yr8hs3+rb6V8y/tBXpt5I484Es6kj1wG/xr6am/1TfSvkr9p+6+z6pp4zgMXP5Yr0eDKXtM2px9fyZ5fF8+TKar9PzR5zFf8AvVqO/wAd64+PUverUepe9ftk8Gz8XhiDsI9Q96sJqPvXHpqfvUy6n71zSwXkdMcSdgmo+9SDUuOtcgNT963/AAP4fvfiD4otNE0oshnO+5nAyLeAY3ufzwPUkCuSvh6dGnKrUdopXb8jqoVJ1qkadNXk3ZI6SPS9Rk8Kz+IxEi6TBcrbmV3wzuSB8o7gEgE+v0NY7alkda9b/aYez8I/DXw34f0eMW9s+ookUY/55xRsxz6ncVJPcmvnk6nwOa8zI5yzDDPEONk5O3otFfz3PSzuhHAYhUFK7UVf1fby2OlfUeOtV5NQ9651tT96hfUvevehgvI8OWJN6S/z3qrJf+9Ycmpe9VpNS966oYM5p4g+hv2fb43Ekkec+VMxHPTIX/CvpqH/AFa/Svkr9mG6NxqmoDOQrIfzzX1rD/ql+lfiXGdL2ebVI+n5I/aOEJ8+UUn6/mwm/wBU30r44/a2m8rVtJHqZP8A2Wvseb/VN9K+K/2xpPL1fRcnGfO/9lrr8Po82e0l/i/9JZhxu7ZLV+X/AKUjwwXrDoakTUiOpNYX2ketH2ketf0U8OmfgqnJHRpquO9Srqv+1XMfaPej7Tj+KoeEiy1Wkjqv7XPAXczMQFVRksT0AHc19v8AwE+GJ+HHhJZdXjX/AISDWAs2oE8mAfwQA/7IPPqxPtXz9+yP8JT4o1s+NPEEJbStGmKaXE44ubsdZPdY+3+0R/dr7I3nvmvxvxCzuMqv9m4d6R+N+fSPy3fn6H6vwNk0oU/r9dav4V5dX89l5ep8sftneJFi8T+E9KMir9nsbi7ZSccu6oD/AOONXz+NbRzhJFY+zZr9FNT8NaLrVwtxrOj6VqE6psWW6so5nC5J2gsCcZJ496+XP2v/ABT4W8P21l4N8NaJosOt3DJe31zbWUcT2UI+4u5QDukPb+6P9oV2cF8QU5xoZXTw7ctbyurJXbbtbZX7+RzcW5DNSrZjOsktLKzvsklv1seGtqv+1UL6r71zn2nPVqPtI9a/WFhIo/MXWkbr6kT0JqM3rHqaxvtHvR9o96tYdIhzkz6Z/ZKm83VtWz2Mf/s1fY8P+qX6V8V/scy+ZrGtDOceT/7NX2pD/ql+lfzr4gx5c9qr/D/6Sj964Id8kpf9vf8ApTCb/VN9K+If2032a1oPuJ//AGSvt6b/AFbfSvhf9uCTZrvh0eq3H/tOtfDhX4gor/F/6Sx8bf8AIlq/9u/+lI+dfOHrR5w9azfOo86v6Y9mfg3J5Gl5w9aPOHrWb51HnUezHy+R1mjfEfxj4YsBYeFfFevaRYB2cW1neNHGGbqQvYmvpD9jHxf4v8ZeMPE0vi/xPrmt2Gm6ZEscF7dtKizSS8MAe+2Nh+Jr5D86vsn9hDTVtvBHizV5iqC81aOESOdoCQw7iSewBlOfpXwfHuFwtDJa9VU488mleyvdyV9bX2ufYcIVsTVzOlTc3yRu7XdtE7aetj3X4tfE/T/hJ4Fv/EWrBZnhAisbQtg3dy2fLjHtkEk9lBNfm1qmu3/iXWb/AFnxDcNdapqs7XF1Mf4nbsB2UDAA7AAV2/7R3xpb4x+PWOlSufC+gl4NJToJznElyR6uRhfRQPU15f52KrgXhb+y8F7asv31TV+S6R/V+enRC4uzt5hifZU3+7ht5vq/0Xl6ml5w9aPOHrWb5/vR5/vX3Xsz5Dk8jS84etHnD1rN86jzqPZi5PI+pv2LH361r3PQQf8As9fb0P8Aql+lfC37D8m/XfEQ9Ft//Z6+6Yf9Uv0r+Z/EdW4grL/D/wCkxP3ngj/kS0v+3v8A0piyjMZHtXw7+3fp0kM/h2+2nyllniZsdCwUj+Rr7kIyDXj37Qnwoh+KHgq90xsR3BHmWsxH+rlX7p+h5B+teZwbmlLLc5o4ir8Kdn6NNN/K9z0eIsDPG5bVow+JrT1Tv+h+ZH2oev6Ufah607xR4b1TwZrVxpXiO1ltLy3cqyuuA3uD3FZPnH1r+tqfs6kFODunqmtmfgM4VIScZKzRqfaR60faR61l+cfWjzj61fs0TaRqG5HrXp1l8fJtD+AL/Dnw5aXFlealqE8mq6p5gxLbSEExxgchmAVGJ/hBx97jx3zj60nm89a48bleGxigq8bqMlJeq2v332OnC4uvhnJ0nZyTT9HuakcyxoFXgDtTvtI9ayvOPrR5x9a7PZo5rSNX7SPWk+0j1rL84+tHnH1o9mgtI1PtI9aPtI9ay/OPrWt4X8N6p4z1m30vw5ay3d5cOFVUXIX3J7CoqclODnN2S3b2RUIVJyUYq7Z9ZfsIadJNP4ivtp8ppYIQ2OpAYn+Yr7iiGEA9q8g/Z7+FEPwv8FWWmLiS4A826lA/1krfeP0HAH0r2EDAFfyTxlmlLMs5rYil8Ldl6JJJ/O1z9+4dwM8FltKjU+JLX1bv+otQXNuJkIIyDU9FfMJ2PbPLviH8E/DnxCtzF4j0u2vABhHZcOn0Yc14vd/sK+DHmZoU1OJSeEW54H6V9blA3UU3yF9K+gy/inNcDD2eHryjHsm7fceVislwOJlz1aSb721PkP8A4YT8H+uq/wDgR/8AWo/4YT8H+uq/+BH/ANavrv7OtH2da9D/AF7z7/oJl95y/wCrOV/8+UfIn/DCfg/11X/wI/8ArUf8MJ+D/XVf/Aj/AOtX139nWj7OtH+veff9BMvvD/VnK/8Anyj5E/4YT8H+uq/+BP8A9aj/AIYT8H+uq/8AgT/9avrv7OtH2daP9fM//wCgmX3h/qzlf/PlHyJ/wwn4P9dV/wDAn/61H/DCfg/11X/wJ/8ArV9d/Z1o+zrR/r5n/wD0Ey+8P9Wcr/58o+S7T9hXwYkytMmpyqDyrXPB/SvZ/h58EvDnw9txF4c0y2s8jDOq5d/qx5r07yF9KcEC9BXn5hxTm2Op+zxFeUo9m3b7jqwuS4HDS56VJJ97akVtbrCgCjAFT0UV8+3c9U//2Q==" alt="" width="40" height="40" style="display: block; flex-shrink: 0; object-fit: contain">
+        <div style="display: flex; flex-direction: column; gap: 1px; line-height: 1.2">
+          <div style="font-size: 15px; font-weight: 600">Data Purge Studio</div>
+          <div style="font-size: 11px; color: #5B5E66">Product by BytePX</div>
+        </div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8B5AD" stroke-width="1.5" stroke-linecap="round"><path d="M15 4 9 20"/></svg>
+      <span id="wsName" tabindex="0" role="button" title="Double-click to rename" aria-label="Workspace name: Untitled workspace. Double-click or press Enter to rename" style="max-width: 320px; padding: 3px 6px; border-radius: 6px; font-size: 14px; color: #5B5E66; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; outline: none">Untitled workspace</span>
+    </div>
+    <button aria-label="Account: 233@email.com" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 4px; border: 0; background: transparent; border-radius: 18px; cursor: pointer">
+      <div style="font-size: 13px; color: #5B5E66">233@email.com</div>
+      <div style="width: 30px; height: 30px; border-radius: 15px; background: #E7E5FB; color: #3F37C9; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">23</div>
+    </button>
+  </header>
+
+  <div style="flex: 1; min-height: 0; display: flex">
+  <div id="main" style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+  <!-- 2. Open files as tabs + Add data -->
+  <nav aria-label="Open datasets" style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; gap: 4px; padding: 0 16px; background: #FFFFFF; border-bottom: 1px solid #E4E2DC">
+    <div class="ds-tab" data-ds="orders" aria-current="true">
+      <button class="ds-main"><span class="ds-badge" style="background: #E3F2E8; color: #1D6B3A">CSV</span>sample_orders.csv<span class="ds-dirty" id="dirtyDot" aria-label="Unsaved changes"></span></button>
+      <button class="ds-x" aria-label="Close sample_orders.csv"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="ds-tab" data-ds="accounts" aria-current="false">
+      <button class="ds-main"><span class="ds-badge" style="background: #E4ECFD; color: #2350B8">SF</span>Salesforce · Accounts</button>
+      <button class="ds-x" aria-label="Close Salesforce · Accounts"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <button id="addBtn" aria-expanded="false" aria-haspopup="menu" style="height: 32px; align-self: center; margin-left: 6px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px dashed #C9C5F3; border-radius: 8px; background: #FFFFFF; font-size: 13px; font-weight: 500; color: #3F37C9; cursor: pointer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3F37C9" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add data
+    </button>
+    <div style="margin-left: auto; align-self: center; display: flex; align-items: center; gap: 16px">
+      <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #5B5E66" id="dsCount">2 / 5 datasets</div>
+      <button id="histBtn" aria-expanded="false" aria-haspopup="dialog" style="height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid #D9D6CE; background: #FFFFFF; font-size: 14px; font-weight: 500; color: #15171C; display: flex; align-items: center; gap: 8px; cursor: pointer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        History
+        <span style="font-family: 'Geist Mono', monospace; font-size: 11px; padding: 1px 6px; border-radius: 10px; background: #ECEAE4; color: #3C3F46" id="histCount">3</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 3. File bar: everything about the file in edit -->
+  <div style="height: 64px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #F4F3EF">
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <div style="display: flex; align-items: center; gap: 10px"><span id="fbName" style="font-size: 18px; font-weight: 600; letter-spacing: -0.01em">sample_orders.csv</span><span id="fbPill" class="pill" hidden>Merged dataset</span></div>
+      <div id="fbMeta" style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #5B5E66">1,248 rows · 8 columns · 3 changes not saved</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <button id="undoBtn" aria-label="Undo last change" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #D9D6CE; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+      </button>
+      <button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #D9D6CE; background: #FFFFFF; font-size: 14px; font-weight: 500; color: #15171C; cursor: pointer">Save draft</button>
+      <button id="dlBtn" aria-expanded="false" aria-haspopup="menu" style="height: 36px; padding: 0 12px 0 14px; border-radius: 8px; border: 0; background: #3F37C9; color: #FFFFFF; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Export
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Lineage: shown on merged / appended datasets -->
+  <div id="lineage" hidden></div>
+
+  <!-- 4. Work area: data + operations on it (same structure as .work in dataset-tabs-combine.html) -->
+  <div class="work">
+
+    <section class="card data" aria-label="Data">
+      <div class="banner" id="unmBanner" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B4530A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg><span id="unmText" style="flex:1"></span><button class="btn" id="showAll" style="height:30px">Show all rows</button></div>
+      <div class="data-top">
+        <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="searchInput" placeholder="Search 1,248 rows" aria-label="Search rows"></label>
+        <span id="dataFrom" style="font-size:12px;color:var(--muted)">Uploaded file</span>
+      </div>
+      <div class="scroll"><table>
+        <thead><tr><th class="num">id<span class="t">number</span></th><th>order_date<span class="t">date</span></th><th>customer_email<span class="t">text</span></th><th id="regionTh">region<span class="t">text · <span style="color:var(--warn)">37 empty</span></span></th><th>product<span class="t">text</span></th><th class="num">qty<span class="t">number</span></th><th class="num">amount<span class="t">number</span></th><th>status<span class="t">text</span></th></tr></thead>
+        <tbody>
+          <tr><td class="num">1001</td><td class="code">2026-08-02</td><td>anna.k@mail.com</td><td>EU-West</td><td>Starter plan</td><td class="num">1</td><td class="num">49.00</td><td>paid</td></tr>
+          <tr><td class="num">1002</td><td class="code">2026-08-02</td><td>j.moreno@mail.com</td><td class="empty" data-empty>—</td><td>Pro plan</td><td class="num">2</td><td class="num">198.00</td><td>paid</td></tr>
+          <tr><td class="num">1003</td><td class="code">2026-08-03</td><td>li.wei@mail.com</td><td>APAC</td><td>Starter plan</td><td class="num">1</td><td class="num">49.00</td><td>refunded</td></tr>
+          <tr><td class="num">1004</td><td class="code">2026-08-03</td><td>sam.o@mail.com</td><td>NA-East</td><td>Team plan</td><td class="num">5</td><td class="num">745.00</td><td>paid</td></tr>
+          <tr><td class="num">1005</td><td class="code">2026-08-04</td><td>r.patel@mail.com</td><td class="empty" data-empty>—</td><td>Pro plan</td><td class="num">1</td><td class="num">99.00</td><td>pending</td></tr>
+          <tr><td class="num">1006</td><td class="code">2026-08-04</td><td>m.fischer@mail.com</td><td>EU-Central</td><td>Pro plan</td><td class="num">1</td><td class="num">99.00</td><td>paid</td></tr>
+          <tr><td class="num">1007</td><td class="code">2026-08-05</td><td>t.nguyen@mail.com</td><td>APAC</td><td>Team plan</td><td class="num">3</td><td class="num">447.00</td><td>paid</td></tr>
+          <tr><td class="num">1008</td><td class="code">2026-08-05</td><td>e.rossi@mail.com</td><td>EU-South</td><td>Starter plan</td><td class="num">2</td><td class="num">98.00</td><td>paid</td></tr>
+          <tr><td class="num">1009</td><td class="code">2026-08-06</td><td>c.brown@mail.com</td><td class="empty" data-empty>—</td><td>Starter plan</td><td class="num">1</td><td class="num">49.00</td><td>failed</td></tr>
+          <tr><td class="num">1010</td><td class="code">2026-08-06</td><td>h.sato@mail.com</td><td>APAC</td><td>Pro plan</td><td class="num">1</td><td class="num">99.00</td><td>paid</td></tr>
+          <tr><td class="num">1011</td><td class="code">2026-08-07</td><td>o.adeyemi@mail.com</td><td>EU-West</td><td>Team plan</td><td class="num">4</td><td class="num">596.00</td><td>paid</td></tr>
+          <tr><td class="num">1012</td><td class="code">2026-08-07</td><td>p.silva@mail.com</td><td>NA-South</td><td>Pro plan</td><td class="num">1</td><td class="num">99.00</td><td>paid</td></tr>
+          <tr><td class="num">1013</td><td class="code">2026-08-08</td><td>k.larsen@mail.com</td><td>EU-North</td><td>Starter plan</td><td class="num">1</td><td class="num">49.00</td><td>paid</td></tr>
+          <tr><td class="num">1014</td><td class="code">2026-08-08</td><td>d.cohen@mail.com</td><td class="empty" data-empty>—</td><td>Pro plan</td><td class="num">2</td><td class="num">198.00</td><td>paid</td></tr>
+        </tbody>
+      </table></div>
+      <div class="foot-note"><span id="fnShow">Showing 14 of 1,248</span><span id="fnCols">8 columns</span></div>
+    </section>
+
+    <!-- Operations: list, or one operation at a time -->
+    <aside class="card ops" id="ops" aria-label="Operations">
+      <div class="pane" id="paneList">
+        <div class="ops-head">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><h2 style="margin:0;font-size:15px">Operations</h2><span id="opsOn" style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">on sample_orders.csv</span></div>
+          <div class="seg" role="tablist" aria-label="Operation groups" id="opsSeg"></div>
+        </div>
+        <div class="op-list" id="opList"></div>
+      </div>
+
+      <div class="pane" id="paneNulls" hidden>
+        <div class="op-back"><button data-op-back><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg><span class="bk-label">All operations</span></button></div>
+        <div class="op-body">
+          <div><h3 class="op-title">Remove nulls</h3><p class="op-sub">Drop rows with empty values. Affected cells are highlighted.</p></div>
+          <div class="seg" role="radiogroup" aria-label="Scope" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button role="radio" aria-checked="true" data-scope="col">In one column</button><button role="radio" aria-checked="false" data-scope="any">In any column</button></div>
+          <label class="field" id="nullColField"><span>Column</span><select class="input" id="nullColSelect"></select></label>
+          <div class="note warn" id="nullNote"><svg id="nullIconWarn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><svg id="nullIconOk" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px" hidden><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><span id="nullImpact"></span></div>
+          <div class="note info" id="nullInfo" hidden>This dataset has no empty values at all.</div>
+          <div class="op-actions"><button class="btn btn-lg" data-op-back>Cancel</button><button class="btn btn-primary btn-lg" id="nullCta">Remove 37 rows</button></div>
+        </div>
+      </div>
+
+      <div class="pane" id="paneOther" hidden>
+        <div class="op-back"><button data-op-back><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg><span class="bk-label">All operations</span></button></div>
+        <div class="op-body">
+          <div><h3 class="op-title" id="otherTitle">Remove columns</h3><p class="op-sub" id="otherDesc">Drop columns you don't need.</p></div>
+          <label class="field"><span>Column</span><select class="input" id="otherColSelect"></select></label>
+          <label class="field" id="renameField" hidden><span>New name</span><input class="input" placeholder="e.g. ordered_on"></label>
+          <div class="op-actions"><button class="btn btn-lg" data-op-back>Cancel</button><button class="btn btn-primary btn-lg" id="otherCta">Remove column</button></div>
+        </div>
+      </div>
+
+      <div class="pane" id="paneResolve" hidden>
+        <div class="op-back"><button data-op-back><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg><span class="bk-label">All operations</span></button></div>
+        <div class="op-body">
+          <div><h3 class="op-title">Resolve overlapping columns</h3><p class="op-sub" id="rsSub"></p></div>
+          <div class="op-body-inner" id="rsBody" style="display:flex;flex-direction:column;gap:14px">
+            <label class="field" id="rsPairField" hidden><span>Pair</span><select class="input" id="rsPair"></select></label>
+            <div role="radiogroup" aria-label="Keep" id="rsChoices" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div class="note ok" id="rsNote"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><span id="rsImpact"></span></div>
+            <div class="op-actions"><button class="btn btn-lg" data-op-back>Cancel</button><button class="btn btn-primary btn-lg" id="rsCta">Apply to combined dataset</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" id="panePick" hidden>
+        <div class="op-back"><button data-op-back><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg><span class="bk-label">All operations</span></button></div>
+        <div class="op-body">
+          <div><h3 class="op-title">Choose source columns</h3><p class="op-sub" id="pickSub"></p></div>
+          <div class="chips" id="pickChips"></div>
+          <div class="note info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><span>The join key <span class="mono" style="font-size:12px" id="pickKey"></span> is always used for matching.</span></div>
+          <div class="op-actions"><button class="btn btn-lg" data-op-back>Cancel</button><button class="btn btn-primary btn-lg" id="pickCta">Use 0 columns</button></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  </div>
+
+  <!-- Version history: docked side panel -->
+  <aside id="histPanel" role="complementary" aria-label="Version history" hidden>
+    <div class="hp-head">
+      <h2>Version history</h2>
+      <button id="histClose" aria-label="Close version history"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15171C" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <ol class="hp-list">
+      <li class="hp-item hp-first"><span class="hp-dot"></span><button class="hp-row" aria-current="true"><span class="hp-title" style="font-weight:600">Latest</span></button></li>
+      <li class="hp-item"><span class="hp-dot"></span><button class="hp-row"><span class="hp-title">Removed column <span class="hp-code">discount_code</span></span><span class="hp-by"><span class="hp-av">23</span>233@email.com</span><span class="hp-date">October 3, 2026, 2:06 PM</span></button></li>
+      <li class="hp-item"><span class="hp-dot"></span><button class="hp-row"><span class="hp-title">Renamed <span class="hp-code">cust_mail</span> → <span class="hp-code">customer_email</span></span><span class="hp-by"><span class="hp-av">23</span>233@email.com</span><span class="hp-date">October 3, 2026, 2:04 PM</span></button></li>
+      <li class="hp-item"><span class="hp-dot"></span><button class="hp-row"><span class="hp-title">Imported 1,248 rows</span><span class="hp-by"><span class="hp-av">23</span>233@email.com</span><span class="hp-date">October 3, 2026, 2:02 PM</span></button></li>
+    </ol>
+  </aside>
+  </div>
+
+  <!-- Add data menu -->
+  <div id="ovAdd" hidden>
+    <div role="menu" aria-label="Add data" style="position: absolute; top: 98px; left: 400px; width: 320px; background: #FFFFFF; border: 1px solid #E4E2DC; border-radius: 12px; box-shadow: 0 12px 32px rgba(21,23,28,0.14), 0 2px 6px rgba(21,23,28,0.06); padding: 8px; display: flex; flex-direction: column; gap: 2px">
+      <button role="menuitem" class="am-item am-first" data-add="upload"><span class="am-ic" style="background: #FFFFFF; border: 1px solid #E4E2DC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3F37C9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg></span><span class="am-tx"><span class="am-nm">Upload a file</span><span class="am-ds am-mono">CSV · XLSX · XML · JSON</span></span></button>
+      <div class="am-label">Connect a source</div>
+      <button role="menuitem" class="am-item" data-add="snowflake"><span class="am-ic" style="background: #E3F1FB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E6FA8" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M20.7 7 3.3 17"/></svg></span><span class="am-tx"><span class="am-nm">Snowflake</span><span class="am-ds">Cloud data warehouse</span></span></button>
+      <button role="menuitem" class="am-item" data-add="salesforce"><span class="am-ic" style="background: #E4ECFD"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2350B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6-1.5A4.5 4.5 0 0 1 17 18z"/></svg></span><span class="am-tx"><span class="am-nm">Salesforce</span><span class="am-ds">CRM objects &amp; reports</span></span></button>
+      <button role="menuitem" class="am-item" data-add="database"><span class="am-ic" style="background: #ECEAE4"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3C3F46" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/></svg></span><span class="am-tx"><span class="am-nm">Database</span><span class="am-ds">Postgres, MySQL, SQL Server</span></span></button>
+      <div class="am-label am-label-sep">Merge or append</div>
+      <button role="menuitem" id="mergeItem" class="am-item"><span class="am-ic" style="background: #EFEEFC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3F37C9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="7" height="14" rx="1.5"/><rect x="14" y="5" width="7" height="14" rx="1.5"/><path d="M10 12h4"/></svg></span><span class="am-tx"><span class="am-nm">Merge data</span><span class="am-ds">Match rows and add columns</span></span></button>
+      <button role="menuitem" id="appendItem" class="am-item"><span class="am-ic" style="background: #E3F1FB"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E6FA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/></svg></span><span class="am-tx"><span class="am-nm">Append data</span><span class="am-ds">Stack datasets and add rows</span></span></button>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".csv,.tsv,.json,.xlsx,.xml" hidden>
+
+  <!-- Merge datasets dialog (opens from Add data > Merge data) -->
+  <div id="mergeScrim" hidden>
+    <div class="mg-dialog" role="dialog" aria-modal="true" aria-labelledby="mgTitle">
+      <div class="mg-head">
+        <div><h2 id="mgTitle">Merge datasets</h2><p id="mgSub" style="margin:4px 0 0;font-size:13px;color:var(--muted)">Creates a new dataset in its own tab. The originals stay as they are.</p></div>
+        <button class="mg-x" id="mgClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="mg-body">
+        <div class="mg-grid2">
+          <label class="mg-field"><span>Start with</span><select class="mg-input mg-plain" id="mgLeft"><option value="orders">sample_orders.csv · 1,248 rows</option><option value="accounts">Salesforce · Accounts · 34 rows</option></select></label>
+          <label class="mg-field"><span id="mgRightLabel">Merge with</span><select class="mg-input mg-plain" id="mgRight"><option value="orders">sample_orders.csv · 1,248 rows</option><option value="accounts">Salesforce · Accounts · 34 rows</option></select></label>
+        </div>
+        <div class="mg-note mg-err" id="mgSame" hidden>Pick two different datasets.</div>
+        <div class="mg-stack" id="mgMatch">
+          <div class="mg-field"><span>Match rows where</span>
+            <div style="display:flex;align-items:center;gap:10px"><select class="mg-input" id="mgLk" aria-label="Column in the first dataset"></select><span style="color:var(--muted)">=</span><select class="mg-input" id="mgRk" aria-label="Column in the second dataset"></select></div>
+          </div>
+          <div class="mg-field"><span>Which rows to keep</span>
+            <div class="mg-grid3" role="radiogroup" aria-label="Keep rows">
+              <button class="mg-card" role="radio" aria-checked="true" data-keep="all"><b>Keep all left rows</b><small>Unmatched get empty columns</small></button>
+              <button class="mg-card" role="radio" aria-checked="false" data-keep="matched"><b>Only matched</b><small>Drops unmatched rows</small></button>
+              <button class="mg-card" role="radio" aria-checked="false" data-keep="both"><b>Everything</b><small>Also adds unmatched right rows</small></button>
+            </div>
+          </div>
+          <div class="mg-note mg-info" style="flex-direction:column;gap:8px">
+            <div class="mg-bar"><div id="mgBarOk" style="background:#3E9A62"></div><div style="flex:1;background:#D98B2B"></div></div>
+            <span id="mgStats"><b id="mgMatched"></b> of <span id="mgTotal"></span> rows in <span id="mgLname"></span> match · <span id="mgUnL" style="color:var(--warn-ink)"></span> · <span id="mgUnR"></span></span>
+            <span id="mgNone" style="color:var(--err-ink)" hidden>Nothing matches. Try different columns.</span>
+            <span id="mgTip" style="color:var(--muted);font-size:12px" hidden>Tip: some emails in sample_orders.csv have capitals or spaces. Clean them first (AI tab) to match more rows.</span>
+          </div>
+        </div>
+        <div class="mg-note mg-warn" id="mgAppend" hidden>
+          <svg id="mgIconWarn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+          <svg id="mgIconOk" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px" hidden><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+          <span id="mgAppendText"></span>
+        </div>
+        <label class="mg-field"><span id="mgNameLabel">Name the new dataset</span><input class="mg-input" id="mgName" value="sample_orders_with_accounts" autocomplete="off"></label>
+        <div class="mg-note mg-err" id="mgClash" hidden>A dataset with that name is already open.</div>
+      </div>
+      <div class="mg-foot">
+        <span id="mgFootText" style="font-size:12px;color:var(--muted)">Uses 1 of your 3 free dataset slots</span>
+        <div style="display:flex;gap:8px"><button class="mg-btn" id="mgCancel">Cancel</button><button class="mg-btn mg-primary" id="mgCreate">Create merged dataset</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7FD19E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><span id="toastMsg"></span></div>
+  <!-- Share or download dialog (opens from the Export menu) -->
+  <div id="shareScrim" hidden>
+    <div class="sh-dialog" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+      <div class="sh-head">
+        <div><h2 id="shTitle">Share or download</h2><p class="sh-sub" id="shSub"></p></div>
+        <button class="sh-x" id="shClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="sh-tabs" role="tablist" aria-label="Share or download">
+        <button class="sh-tab" role="tab" id="shTabLink" data-tab="link" aria-selected="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.43"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.33"/></svg>Share link</button>
+        <button class="sh-tab" role="tab" id="shTabDl" data-tab="dl" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6"/><path d="m9.5 14.5 2.5 2.5 2.5-2.5"/></svg>Download</button>
+      </div>
+      <div class="sh-body">
+        <div class="sh-live" id="shLive" role="status" aria-live="polite"></div>
+
+        <!-- Share link -->
+        <div id="shLinkPane" role="tabpanel" aria-labelledby="shTabLink">
+          <div id="shLinkForm">
+            <div class="sh-seg" role="radiogroup" aria-label="What people with the link can do">
+              <button role="radio" aria-checked="true" data-perm="view">Link for viewing</button>
+              <button role="radio" aria-checked="false" data-perm="edit">Link for editing</button>
+            </div>
+            <div class="sh-card">
+              <div class="sh-card-head"><span class="sh-circ"><svg id="shPermIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span><span id="shPermText">People with this link can view</span></div>
+              <div class="sh-row">
+                <div class="sh-lab"><b>Who has access</b><small>Control who can open this dataset with the link.</small></div>
+                <select class="sh-select" id="shAccess" aria-label="Who has access"><option value="anyone">Anyone with link</option><option value="workspace">People in this workspace</option><option value="invite">Only people I invite</option></select>
+              </div>
+              <div class="sh-row">
+                <div class="sh-lab"><b>Expiration</b><small>Disable this link on a specific date.</small></div>
+                <div class="sh-ctl"><label class="sh-switch"><span id="shExpState">On</span><input type="checkbox" role="switch" id="shExp" aria-label="Expiration"><span class="sh-track" aria-hidden="true"></span></label><input class="sh-date" type="date" id="shExpDate" aria-label="Expiration date"></div>
+              </div>
+              <div class="sh-row">
+                <div class="sh-lab"><b>Require password</b><small>Set a password to limit access to the dataset via link.</small></div>
+                <div class="sh-ctl"><label class="sh-switch"><span id="shPwState">Off</span><input type="checkbox" role="switch" id="shPwOn" aria-label="Require password"><span class="sh-track" aria-hidden="true"></span></label><input class="sh-date" type="text" id="shPw" placeholder="Set a password" autocomplete="off" aria-label="Password"><small class="sh-err" id="shPwErr" hidden>Use at least 4 characters.</small></div>
+              </div>
+              <div class="sh-row sh-last">
+                <div class="sh-lab"><b>Disable downloads</b><small>Prevent people with this link from downloading the data.</small></div>
+                <div class="sh-ctl"><label class="sh-switch"><span id="shDisState">Off</span><input type="checkbox" role="switch" id="shNoDl" aria-label="Disable downloads"><span class="sh-track" aria-hidden="true"></span></label></div>
+              </div>
+            </div>
+            <div class="sh-actions"><button class="sh-btn" id="shCancel">Cancel</button><button class="sh-btn sh-primary" id="shCreate">Create link</button></div>
+          </div>
+
+          <div class="sh-state" id="shLinkBusy" hidden>
+            <div class="sh-spin" aria-hidden="true"></div>
+            <h3 id="shLinkBusyText">Creating your link…</h3>
+            <p>This only takes a moment.</p>
+            <button class="sh-textbtn" id="shLinkBusyCancel">Cancel</button>
+          </div>
+
+          <div class="sh-state" id="shLinkReady" hidden>
+            <div class="sh-ok" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D6B3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.43"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.33-1.33"/></svg></div>
+            <h3>Your link is ready</h3>
+            <p id="shReadyDesc"></p>
+            <div class="sh-copy"><input class="sh-url" id="shUrl" readonly aria-label="Share link"><button class="sh-btn sh-primary" id="shCopy">Copy link</button></div>
+            <ul class="sh-chips" id="shChips"></ul>
+            <div class="sh-links"><button class="sh-textbtn" id="shEdit">Edit settings</button><button class="sh-textbtn sh-danger" id="shDelete">Delete link</button></div>
+          </div>
+        </div>
+
+        <!-- Download -->
+        <div id="shDlPane" role="tabpanel" aria-labelledby="shTabDl" hidden>
+          <div id="shDlForm" class="sh-state sh-state-form">
+            <svg class="sh-file" width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M14 6h24l14 14v34a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z" fill="#E7E5FB"/><path d="M38 6v10a4 4 0 0 0 4 4h10z" fill="#3F37C9"/><path d="M20 32h24M20 39h16" stroke="#3F37C9" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <h3 id="shDlTitle">Download the dataset</h3>
+            <p id="shDlDesc"></p>
+            <label class="sh-field"><span>Format</span><select class="sh-select sh-wide" id="shFmt"><option value="csv">CSV (.csv)</option><option value="xlsx">Excel (.xlsx)</option><option value="json">JSON (.json)</option><option value="xml">XML (.xml)</option></select></label>
+            <button class="sh-btn sh-primary sh-block" id="shDlGo">Download file</button>
+          </div>
+
+          <div class="sh-state" id="shDlBusy" hidden>
+            <div class="sh-spin" aria-hidden="true"></div>
+            <h3 id="shDlBusyText">Preparing your file…</h3>
+            <p>Applying your changes and building the file.</p>
+            <button class="sh-textbtn" id="shDlBusyCancel">Cancel</button>
+          </div>
+
+          <div class="sh-state" id="shDlReady" hidden>
+            <svg class="sh-file" width="72" height="72" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M14 6h24l14 14v34a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z" fill="#E7E5FB"/><path d="M38 6v10a4 4 0 0 0 4 4h10z" fill="#3F37C9"/><path d="M20 30h24M20 37h16" stroke="#3F37C9" stroke-width="2.5" stroke-linecap="round"/><circle cx="44" cy="46" r="11" fill="#3E9A62"/><path d="M44 40v9m-4-4 4 4 4-4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3>Your download is ready</h3>
+            <p id="shDlReadyDesc"></p>
+            <button class="sh-btn sh-primary sh-pill" id="shDlFile">Download file</button>
+            <button class="sh-textbtn" id="shDlAgain">Choose another format</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export menu -->
+  <div id="ovDl" hidden>
+    <div role="menu" aria-label="Export" style="position: absolute; top: 156px; right: 20px; width: 280px; background: #FFFFFF; border: 1px solid #E4E2DC; border-radius: 12px; box-shadow: 0 12px 32px rgba(21,23,28,0.14), 0 2px 6px rgba(21,23,28,0.06); padding: 8px; display: flex; flex-direction: column; gap: 2px">
+      <div style="padding: 8px 10px 6px 10px; font-size: 12px; color: #5B5E66">Export <span id="exName" style="font-weight: 600; color: #15171C">sample_orders.csv</span><span id="exChanges"> with 3 changes applied</span></div>
+      <button role="menuitem" class="ex-item" data-fmt="csv"><span class="ex-badge" style="background: #E3F2E8; color: #1D6B3A">CSV</span>CSV (.csv)<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="xlsx"><span class="ex-badge" style="background: #E3F2E8; color: #1D6B3A">XLS</span>Excel (.xlsx)<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="json"><span class="ex-badge" style="background: #EFEEFC; color: #3F37C9">JSON</span>JSON (.json)<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="xml"><span class="ex-badge" style="background: #EFEEFC; color: #3F37C9">XML</span>XML (.xml)<span class="ex-hint"></span></button>
+      <div class="ex-sep" role="separator"></div>
+      <button role="menuitem" class="ex-item" data-fmt="database"><span class="ex-badge" style="background: #ECEAE4; color: #3C3F46">DB</span>Database<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="api"><span class="ex-badge" style="background: #FDF1E3; color: #B4530A">API</span>REST API<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="dynamics"><span class="ex-badge" style="background: #E3F1FB; color: #1E6FA8">D365</span>Dynamics 365<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="salesforce"><span class="ex-badge" style="background: #E4ECFD; color: #2350B8">SF</span>Salesforce<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="s3"><span class="ex-badge" style="background: #FFF4D6; color: #8A5A00">S3</span>Amazon S3<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="azure"><span class="ex-badge" style="background: #DCEBFF; color: #1F5FBF">AZ</span>Azure Blob<span class="ex-hint"></span></button>
+      <button role="menuitem" class="ex-item" data-fmt="sheets"><span class="ex-badge" style="background: #E3F2E8; color: #1D6B3A">GS</span>Google Sheets<span class="ex-hint"></span></button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"overlay":{"editor":"enum","options":["none","add","download","history"],"default":"none"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const o = props.overlay && props.overlay !== 'none' ? props.overlay : null;
+    this.state = { overlay: o, op: 'nulls', nullMode: 'col' };
+  }
+  renderVals() {
+    const s = this.state;
+    const ov = (k) => () => this.setState({ overlay: s.overlay === k ? null : k });
+    const addOpen = s.overlay === 'add';
+    const hl = s.op === 'nulls' && s.nullMode === 'col';
+    const base = 'padding: 0 14px; border-bottom: 1px solid #F0EEE9; ';
+    const rows = [
+      ['1001','2026-08-02','anna.k@mail.com','EU-West','Starter plan','1','49.00','paid'],
+      ['1002','2026-08-02','j.moreno@mail.com','','Pro plan','2','198.00','paid'],
+      ['1003','2026-08-03','li.wei@mail.com','APAC','Starter plan','1','49.00','refunded'],
+      ['1004','2026-08-03','sam.o@mail.com','NA-East','Team plan','5','745.00','paid'],
+      ['1005','2026-08-04','r.patel@mail.com','','Pro plan','1','99.00','pending'],
+      ['1006','2026-08-04','m.fischer@mail.com','EU-Central','Pro plan','1','99.00','paid'],
+      ['1007','2026-08-05','t.nguyen@mail.com','APAC','Team plan','3','447.00','paid'],
+      ['1008','2026-08-05','e.rossi@mail.com','EU-South','Starter plan','2','98.00','paid'],
+      ['1009','2026-08-06','c.brown@mail.com','','Starter plan','1','49.00','failed'],
+      ['1010','2026-08-06','h.sato@mail.com','APAC','Pro plan','1','99.00','paid'],
+      ['1011','2026-08-07','o.adeyemi@mail.com','EU-West','Team plan','4','596.00','paid'],
+      ['1012','2026-08-07','p.silva@mail.com','NA-South','Pro plan','1','99.00','paid'],
+      ['1013','2026-08-08','k.larsen@mail.com','EU-North','Starter plan','1','49.00','paid'],
+      ['1014','2026-08-08','d.cohen@mail.com','','Pro plan','2','198.00','paid']
+    ].map((r) => {
+      const empty = r[3] === '';
+      let regStyle = base;
+      if (hl && empty) regStyle += 'background: #FDF1E3; color: #B4530A; font-family: \'Geist Mono\', monospace; font-size: 11px; font-weight: 500';
+      else if (hl) regStyle += 'background: #F8F7FE';
+      else if (empty) regStyle += 'color: #8C8F96';
+      return { id: r[0], date: r[1], email: r[2], regText: empty ? (hl ? 'empty' : '—') : r[3], regStyle, product: r[4], qty: r[5], amount: r[6], status: r[7] };
+    });
+    const ops = [
+      { key: 'cols', name: 'Remove columns', desc: "Drop columns you don't need", icon: 'M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 4v16M15 4v16', ink: '#B42318', bg: '#FCEDEB', badge: '' },
+      { key: 'nulls', name: 'Remove nulls', desc: 'Drop rows with empty values', icon: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM6.5 17.5l11-11', ink: '#B4530A', bg: '#FDF1E3', badge: '96' },
+      { key: 'ren', name: 'Replace / rename', desc: 'Rename a column or replace values', icon: 'M4 8h13l-3-3M20 16H7l3 3', ink: '#2350B8', bg: '#E8EEFC', badge: '' }
+    ].map((o) => Object.assign({}, o, {
+      iconBg: 'background: ' + o.bg,
+      badgeStyle: o.badge ? '' : 'display: none',
+      open: () => this.setState({ op: o.key })
+    }));
+    const nullCol = s.nullMode === 'col';
+    return {
+      rows, ops,
+      addOpen, addOpenStr: String(addOpen), toggleAdd: ov('add'),
+      addBtnStyle: 'height: 32px; align-self: center; margin-left: 6px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px ' + (addOpen ? 'solid #3F37C9' : 'dashed #C9C5F3') + '; border-radius: 8px; background: ' + (addOpen ? '#EFEEFC' : '#FFFFFF') + '; font-size: 13px; font-weight: 500; color: #3F37C9; cursor: pointer',
+      dlOpen: s.overlay === 'download', dlOpenStr: String(s.overlay === 'download'), toggleDownload: ov('download'),
+      histOpen: s.overlay === 'history', histOpenStr: String(s.overlay === 'history'), toggleHistory: ov('history'),
+      regionHeadStyle: hl
+        ? 'width: 120px; text-align: left; padding: 0 14px; border-bottom: 2px solid #3F37C9; background: #EFEEFC; color: #2E279E; font-weight: 500'
+        : 'width: 120px; text-align: left; padding: 0 14px; border-bottom: 1px solid #E4E2DC; font-weight: 500',
+      regionBadgeStyle: hl ? 'display: block; font-family: \'Geist Mono\', monospace; font-size: 10px; color: #B4530A' : 'display: none',
+      listMode: !s.op, nullsMode: s.op === 'nulls', otherMode: s.op === 'cols' || s.op === 'ren',
+      backToList: () => this.setState({ op: null }),
+      otherTitle: s.op === 'cols' ? 'Remove columns' : 'Replace / rename',
+      otherDesc: s.op === 'cols' ? "Drop columns you don't need." : 'Rename a column or replace values.',
+      otherCta: s.op === 'cols' ? 'Remove column' : 'Rename column',
+      isRename: s.op === 'ren',
+      nullCol, nullColStr: String(nullCol), nullAnyStr: String(!nullCol),
+      setNullCol: () => this.setState({ nullMode: 'col' }), setNullAny: () => this.setState({ nullMode: 'any' }),
+      nullImpact: nullCol ? '37 of 1,248 rows have no region. They are highlighted in the table.' : '96 of 1,248 rows have at least one empty cell.',
+      nullCta: nullCol ? 'Remove 37 rows' : 'Remove 96 rows'
+    };
+  }
+}
+</script>
+<style>
+  #addBtn[aria-expanded="true"] { border: 1px solid #3F37C9 !important; background: #EFEEFC !important; }
+  #addBtn:hover { background: #F7F6FE !important; }
+  #backBtn:hover { background: #F4F3EF !important; }
+  #undoBtn:disabled { opacity: .5; cursor: default; }
+  #addBtn { white-space: nowrap; flex-shrink: 0; }
+
+  /* Merged / appended datasets: pill, lineage strip, source squares, toast */
+  .pill { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: #EFEEFC; color: #3F37C9; }
+  .pill[hidden] { display: none; }
+  .sq { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; display: inline-block; }
+  #lineage { margin: 0 20px 12px; min-height: 44px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; border-radius: 10px; background: #FFFFFF; border: 1px solid #E4E2DC; flex-wrap: wrap; font-size: 14px; }
+  #lineage[hidden] { display: none; }
+  #lineage .ln-cap { font-size: 12px; color: #5B5E66; }
+  #lineage .ln-how { font-family: 'Geist Mono', monospace; font-size: 12px; color: #5B5E66; }
+  #lineage .link { border: 0; background: transparent; color: #3F37C9; font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; }
+  #lineage .link:hover { text-decoration: underline; }
+  .chip-src { height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 8px; border-radius: 6px; font: inherit; font-size: 12px; font-weight: 500; border: 1px solid; cursor: pointer; }
+  .chip-l { background: #F7F6FE; border-color: #DCD9F7; color: #2E279E; }
+  .chip-r { background: #F2F8FD; border-color: #CFE1F5; color: #1E5F8F; }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 40; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: #15171C; color: #FFFFFF; box-shadow: 0 12px 32px rgba(21,23,28,.24); font-size: 13px; max-width: 720px; animation: toast-pop .2s ease-out; }
+  .toast[hidden] { display: none; }
+  .toast .mono { font-family: 'Geist Mono', monospace; }
+  @keyframes toast-pop { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+  /* Dataset tabs (same as .tab in dataset-tabs-combine.html) */
+  .ds-tab { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 12px; border: 1px solid transparent; border-bottom: 0; border-radius: 10px 10px 0 0; background: transparent; font-size: 14px; font-weight: 500; color: #5B5E66; white-space: nowrap; min-width: 96px; max-width: 280px; }
+  .ds-tab[aria-current="true"] { background: #F4F3EF; border-color: #E4E2DC; color: #15171C; font-weight: 600; margin-bottom: -1px; }
+  .ds-main { height: 100%; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .ds-badge { font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 500; padding: 2px 5px; border-radius: 4px; }
+  .ds-dirty { width: 7px; height: 7px; border-radius: 4px; background: #C98A1B; }
+  .ds-dirty[hidden] { display: none; }
+  .ds-x { width: 22px; height: 22px; border: 0; border-radius: 6px; background: transparent; display: flex; align-items: center; justify-content: center; opacity: .6; cursor: pointer; }
+  .ds-x:hover { background: #ECEAE4; opacity: 1; }
+  /* Menus sit above the table's sticky header (z-index 1) */
+  #ovAdd > *, #ovDl > * { z-index: 20; }
+  #histBtn[aria-expanded="true"] { background: #EFEEFC !important; border-color: #3F37C9 !important; }
+
+  /* Version history side panel */
+  #histPanel { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; background: #FFFFFF; border-left: 1px solid #E4E2DC; }
+  #histPanel[hidden] { display: none; }
+  #histPanel .hp-head { height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px 0 20px; }
+  #histPanel h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  #histClose { width: 32px; height: 32px; border: 1px solid #E4E2DC; border-radius: 8px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  #histClose:hover { background: #FAF9F6; }
+  #histPanel .hp-list { list-style: none; margin: 0; padding: 4px 12px 24px 20px; position: relative; flex: 1; min-height: 0; overflow: auto; }
+  #histPanel .hp-item { position: relative; padding: 0 0 6px 22px; }
+  #histPanel .hp-item:not(:last-child)::before { content: ""; position: absolute; left: 4px; top: 23px; bottom: -18px; width: 1px; background: #E4E2DC; }
+  #histPanel .hp-dot { position: absolute; left: 0; top: 14px; width: 9px; height: 9px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #5B5E66; background: #FFFFFF; z-index: 1; }
+  #histPanel .hp-row { width: 100%; display: flex; flex-direction: column; gap: 5px; align-items: flex-start; padding: 8px 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; font: inherit; color: #15171C; cursor: pointer; }
+  #histPanel .hp-row:hover { background: #FAF9F6; }
+  #histPanel .hp-row[aria-current="true"] { background: #EFEEFC; }
+  #histPanel .hp-title { font-size: 13px; font-weight: 500; }
+  #histPanel .hp-code { font-family: 'Geist Mono', monospace; font-size: 12px; }
+  #histPanel .hp-by { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #5B5E66; }
+  #histPanel .hp-av { width: 18px; height: 18px; border-radius: 4px; background: #ECEAE4; color: #3C3F46; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
+  #histPanel .hp-date { font-size: 12px; color: #6A6D74; }
+
+  /* Merge datasets dialog (same look as the combine dialog in dataset-tabs-combine.html) */
+  #mergeScrim { --bg:#F4F3EF; --sunken:#FAF9F6; --line:#E4E2DC; --line-soft:#ECEAE4; --line-strong:#D9D6CE; --ink:#15171C; --ink-2:#3C3F46; --muted:#5B5E66; --accent:#3F37C9; --accent-ink:#2E279E; --accent-ring:#E3E1FA; --accent-tint:#F7F6FE; --warn-ink:#6E3207; --err-ink:#8F1B12; --err-soft:#FCEDEB; --mono:'Geist Mono',ui-monospace,monospace; position: fixed; inset: 0; z-index: 30; background: rgba(21,23,28,.32); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink); }
+  #mergeScrim[hidden], #mergeScrim [hidden] { display: none !important; }
+  #mergeScrim, #mergeScrim * { box-sizing: border-box; }
+  :where(#mergeScrim) :is(button, input, select) { font: inherit; color: inherit; }
+  #mergeScrim button { cursor: pointer; }
+  #mergeScrim button:disabled { cursor: default; opacity: .5; }
+  #mergeScrim :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mg-dialog { width: 660px; max-width: calc(100% - 32px); max-height: calc(100% - 48px); background: #fff; border-radius: 16px; box-shadow: 0 24px 64px rgba(21,23,28,.28); display: flex; flex-direction: column; overflow: hidden; }
+  .mg-head { padding: 22px 24px 16px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--line-soft); }
+  .mg-head h2 { margin: 0; font-size: 19px; font-weight: 600; }
+  .mg-x { width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center; }
+  .mg-x:hover { background: var(--bg); }
+  .mg-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; overflow: auto; }
+  .mg-stack { display: flex; flex-direction: column; gap: 18px; }
+  .mg-foot { padding: 14px 24px; border-top: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; background: var(--sunken); }
+  .mg-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .mg-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .mg-field { display: flex; flex-direction: column; gap: 6px; }
+  .mg-field > span { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+  .mg-input { height: 38px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; font-family: var(--mono); font-size: 13px; width: 100%; }
+  .mg-input.mg-plain { font-family: inherit; font-size: 14px; }
+  .mg-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+  .mg-card { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #fff; text-align: left; }
+  .mg-card[aria-checked="true"] { border: 1.5px solid var(--accent); background: var(--accent-tint); padding: 9.5px; }
+  .mg-card b { font-size: 13px; font-weight: 500; }
+  .mg-card small { font-size: 11px; line-height: 1.4; color: var(--muted); }
+  .mg-note { display: flex; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.45; }
+  .mg-info { background: var(--bg); color: var(--ink-2); }
+  .mg-err { background: var(--err-soft); color: var(--err-ink); }
+  .mg-warn { background: #FDF1E3; color: var(--warn-ink); }
+  .mg-ok { background: #E3F2E8; color: #14532B; }
+  .mg-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; background: var(--line-soft); }
+  .mg-btn { height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-strong); background: #fff; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+  .mg-btn:hover:not(:disabled) { background: var(--sunken); }
+  .mg-primary { border: 0; background: var(--accent); color: #fff; }
+  .mg-primary:hover:not(:disabled) { background: var(--accent-ink) !important; }
+  #ovAdd [role="menuitem"]:hover, #ovAdd [role="menuitem"]:focus-visible { background: #F4F3EF !important; }
+
+  .ds-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ds-badge, .ds-dirty { flex-shrink: 0; }
+  .ds-spin { width: 14px; height: 14px; flex-shrink: 0; border-radius: 50%; border: 2px solid #DCD9F7; border-top-color: #3F37C9; animation: sh-spin .8s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .ds-spin { animation: none; border-right-color: #3F37C9; } }
+  nav[aria-label="Open datasets"] > div:last-child { flex-shrink: 0; }
+
+  /* Add data menu */
+  .am-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; text-align: left; font: inherit; color: #15171C; }
+  .am-first { background: #F4F3EF; }
+  #ovAdd [role="menuitem"]:disabled { opacity: .5; cursor: default; }
+  #ovAdd [role="menuitem"]:disabled:hover { background: transparent !important; }
+  .am-ic { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .am-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .am-nm { font-size: 14px; font-weight: 500; }
+  .am-ds { font-size: 12px; color: #5B5E66; }
+  .am-mono { font-family: 'Geist Mono', monospace; font-size: 11px; }
+  .am-label { padding: 10px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #5B5E66; }
+  .am-label-sep { margin-top: 6px; border-top: 1px solid #ECEAE4; padding-top: 12px; }
+  /* Export menu */
+  .ex-item { display: flex; align-items: center; gap: 12px; height: 40px; flex-shrink: 0; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 14px; color: #15171C; text-align: left; cursor: pointer; }
+  .ex-item:hover, .ex-item:focus-visible, .ex-item.is-orig { background: #F4F3EF; }
+  .ex-badge { min-width: 36px; height: 20px; padding: 0 6px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 600; }
+  .ex-hint { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 11px; color: #5B5E66; }
+  .ex-sep { height: 1px; flex-shrink: 0; margin: 4px 10px; background: #ECEAE4; }
+
+  /* Share or download dialog */
+  #shareScrim { --bg:#F4F3EF; --sunken:#FAF9F6; --line:#E4E2DC; --line-soft:#ECEAE4; --line-strong:#D9D6CE; --ink:#15171C; --ink-2:#3C3F46; --muted:#5B5E66; --accent:#3F37C9; --accent-ink:#2E279E; --accent-ring:#E3E1FA; --err-ink:#8F1B12; --mono:'Geist Mono',ui-monospace,monospace; position: fixed; inset: 0; z-index: 30; background: rgba(21,23,28,.32); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink); }
+  #shareScrim[hidden], #shareScrim [hidden] { display: none !important; }
+  #shareScrim, #shareScrim * { box-sizing: border-box; }
+  :where(#shareScrim) :is(button, input, select) { font: inherit; color: inherit; }
+  #shareScrim button { cursor: pointer; }
+  #shareScrim button:disabled { cursor: default; opacity: .5; }
+  #shareScrim :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sh-dialog { width: 540px; max-width: calc(100% - 32px); max-height: calc(100% - 48px); background: #fff; border-radius: 16px; box-shadow: 0 24px 64px rgba(21,23,28,.28); display: flex; flex-direction: column; overflow: hidden; }
+  .sh-head { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .sh-head h2 { margin: 0; font-size: 19px; font-weight: 600; }
+  .sh-sub { margin: 4px 0 0; font-size: 13px; color: var(--muted); font-family: var(--mono); }
+  .sh-x { width: 32px; height: 32px; flex-shrink: 0; border: 0; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center; }
+  .sh-x:hover { background: var(--bg); }
+  .sh-tabs { display: flex; margin: 16px 24px 0; border-bottom: 1px solid var(--line); }
+  .sh-tab { flex: 1; height: 44px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: transparent; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--muted); font-weight: 500; }
+  .sh-tab:hover { color: var(--ink); }
+  .sh-tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .sh-body { padding: 20px 24px 24px; overflow: auto; }
+  .sh-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .sh-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 3px; background: #F1EFEA; border-radius: 10px; margin-bottom: 14px; }
+  .sh-seg button { height: 32px; border: 0; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 500; color: var(--muted); }
+  .sh-seg button[aria-checked="true"] { background: #fff; box-shadow: 0 1px 2px rgba(21,23,28,.08); color: var(--ink); }
+  .sh-card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .sh-card-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #F7F6F3; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .sh-circ { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line-strong); background: #fff; display: flex; align-items: center; justify-content: center; color: var(--ink-2); }
+  .sh-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px; border-bottom: 1px solid var(--line-soft); }
+  .sh-row.sh-last { border-bottom: 0; }
+  .sh-lab { display: flex; flex-direction: column; gap: 3px; max-width: 220px; }
+  .sh-lab b { font-size: 14px; font-weight: 500; }
+  .sh-lab small { font-size: 12px; line-height: 1.4; color: var(--muted); }
+  .sh-ctl { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .sh-select { height: 34px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: #F4F3EF; font-weight: 500; font-size: 13px; }
+  .sh-select.sh-wide { width: 100%; height: 38px; background: #fff; font-size: 14px; font-weight: 400; }
+  .sh-date { height: 34px; width: 170px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; font-family: var(--mono); font-size: 13px; }
+  .sh-select:focus, .sh-date:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+  .sh-err { color: var(--err-ink); font-size: 12px; }
+  .sh-switch { position: relative; display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .sh-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .sh-track { position: relative; width: 40px; height: 22px; border-radius: 11px; border: 1.5px solid var(--ink); background: #fff; transition: background .15s; }
+  .sh-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 13px; height: 13px; border-radius: 50%; background: var(--ink); transition: transform .15s, background .15s; }
+  .sh-switch input:checked + .sh-track { background: var(--ink); }
+  .sh-switch input:checked + .sh-track::after { transform: translateX(18px); background: #fff; }
+  .sh-switch input:focus-visible + .sh-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .sh-track, .sh-track::after { transition: none; } }
+
+  .sh-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .sh-btn { height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line-strong); background: #fff; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+  .sh-btn:hover:not(:disabled) { background: var(--sunken); }
+  .sh-primary { border: 0; background: var(--accent); color: #fff; }
+  .sh-primary:hover:not(:disabled) { background: var(--accent-ink) !important; }
+  .sh-block { width: 100%; }
+  .sh-pill { border-radius: 999px; padding: 0 28px; }
+  .sh-textbtn { border: 0; background: transparent; padding: 4px 6px; font-size: 13px; font-weight: 500; color: var(--accent); }
+  .sh-textbtn:hover { text-decoration: underline; }
+  .sh-danger { color: var(--err-ink); }
+
+  .sh-state { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; }
+  .sh-state-form { min-height: 0; padding: 4px 0 0; }
+  .sh-state h3 { margin: 6px 0 0; font-size: 17px; font-weight: 600; }
+  .sh-state p { margin: 0; max-width: 380px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .sh-field { width: 100%; display: flex; flex-direction: column; gap: 6px; text-align: left; margin-top: 8px; }
+  .sh-field > span { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+  .sh-state-form .sh-btn { margin-top: 8px; }
+  .sh-spin { width: 40px; height: 40px; border-radius: 50%; border: 3.5px solid #DCD9F7; border-top-color: var(--accent); animation: sh-spin .8s linear infinite; }
+  @keyframes sh-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .sh-spin { animation: none; border-top-color: #DCD9F7; border-right-color: var(--accent); } }
+  .sh-ok { width: 52px; height: 52px; border-radius: 50%; background: #E3F2E8; display: flex; align-items: center; justify-content: center; }
+  .sh-copy { display: flex; gap: 8px; width: 100%; margin-top: 8px; }
+  .sh-url { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--sunken); font-family: var(--mono); font-size: 12px; }
+  .sh-chips { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .sh-chips li { padding: 3px 10px; border-radius: 12px; background: #F1EFEA; color: var(--ink-2); font-size: 12px; }
+  .sh-links { display: flex; gap: 14px; margin-top: 6px; }
+  #wsName:hover { background: #F4F3EF; }
+  #wsName:focus-visible { box-shadow: 0 0 0 2px #C9C5F3; }
+  #wsName[contenteditable="plaintext-only"], #wsName[contenteditable="true"] { background: #FFFFFF; color: #15171C; box-shadow: 0 0 0 1.5px #3F37C9; text-overflow: clip; cursor: text; }
+</style>
+<script>
+(function () {
+  var pairs = { add: ['addBtn', 'ovAdd'], dl: ['dlBtn', 'ovDl'] };
+  var current = null;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function place(key) {
+    // Anchor the Add data menu under its button (left-aligned) and the Export menu under its button (right-aligned)
+    var btn = $(pairs[key][0]), menu = $(pairs[key][1]).firstElementChild;
+    var host = menu.offsetParent || document.body, h = host.getBoundingClientRect(), b = btn.getBoundingClientRect();
+    var left = key === 'dl' ? b.right - h.left - menu.offsetWidth : b.left - h.left;
+    menu.style.top = (b.bottom - h.top + 6) + 'px';
+    menu.style.maxHeight = Math.max(160, h.height - (b.bottom - h.top + 6) - 12) + 'px';   // long menus scroll instead of running off the screen
+    menu.style.overflowY = 'auto';
+    menu.style.right = 'auto';
+    menu.style.left = Math.max(8, Math.min(left, h.width - menu.offsetWidth - 8)) + 'px';
+  }
+  function setOpen(key) {
+    current = key;
+    Object.keys(pairs).forEach(function (k) {
+      var on = k === key;
+      $(pairs[k][1]).hidden = !on;
+      $(pairs[k][0]).setAttribute('aria-expanded', String(on));
+    });
+    if (key) place(key);
+  }
+  Object.keys(pairs).forEach(function (k) {
+    $(pairs[k][0]).addEventListener('click', function (e) {
+      e.stopPropagation();
+      setOpen(current === k ? null : k);
+    });
+    // Picking something inside a menu closes it
+    $(pairs[k][1]).addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (e.target.closest('[role="menuitem"]')) setOpen(null);
+    });
+  });
+  document.addEventListener('click', function () { if (current) setOpen(null); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && current) { var b = $(pairs[current][0]); setOpen(null); b.focus(); } });
+  window.addEventListener('resize', function () { if (current) place(current); });
+})();
+
+// Workspace name: double-click (or Enter / F2) to rename in place
+(function () {
+  var el = document.getElementById('wsName'), DEFAULT = 'Untitled workspace', MAX = 40;
+  var before = el.textContent, editing = false;
+
+  function label(name) { el.setAttribute('aria-label', 'Workspace name: ' + name + '. Double-click or press Enter to rename'); }
+  function start() {
+    if (editing) return;
+    editing = true; before = el.textContent;
+    el.contentEditable = 'plaintext-only';
+    if (el.contentEditable !== 'plaintext-only') el.contentEditable = 'true';
+    el.setAttribute('role', 'textbox'); el.removeAttribute('aria-label'); el.removeAttribute('title');
+    el.focus();
+    var r = document.createRange(); r.selectNodeContents(el);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  function stop(save) {
+    if (!editing) return;
+    editing = false;
+    var name = save ? el.textContent.replace(/\s+/g, ' ').trim().slice(0, MAX) : before;
+    el.textContent = name || DEFAULT;
+    el.contentEditable = 'false';
+    el.setAttribute('role', 'button'); el.title = 'Double-click to rename'; label(el.textContent);
+    window.getSelection().removeAllRanges();
+  }
+  el.addEventListener('dblclick', start);
+  el.addEventListener('blur', function () { stop(true); });
+  el.addEventListener('keydown', function (e) {
+    if (!editing && (e.key === 'Enter' || e.key === 'F2')) { e.preventDefault(); start(); }
+    else if (editing && e.key === 'Enter') { e.preventDefault(); stop(true); el.focus(); }
+    else if (editing && e.key === 'Escape') { e.preventDefault(); stop(false); el.focus(); }
+  });
+})();
+
+// Workspace: datasets and tabs, the merge / append dialog, and the operations panel.
+// Creating a merge or append opens the result in its own tab, like dataset-tabs-combine.html.
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return n.toLocaleString('en-US'); };
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var isEmpty = function (v) { return v === null || v === undefined || String(v).trim() === ''; };
+  var lastTok = function (c) { return c.split('_').pop().toLowerCase(); };
+  function colType(rows, c) {
+    var vals = rows.map(function (r) { return r[c]; }).filter(function (v) { return !isEmpty(v); }).slice(0, 40);
+    if (!vals.length) return 'text';
+    if (vals.every(function (v) { return /^-?\d+(\.\d+)?$/.test(String(v).trim()); })) return 'number';
+    if (vals.every(function (v) { return /^\d{4}-\d{2}-\d{2}/.test(String(v).trim()); })) return 'date';
+    return 'text';
+  }
+  function shortName(name) { return name.replace(/^.*·\s*/, '').replace(/\.[a-z]+$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+  function stamp() {
+    var n = new Date();
+    return n.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ', ' + n.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  /* ---------- datasets ---------- */
+  var thead = document.querySelector('.work thead'), tbody = document.querySelector('.work tbody');
+  // sample_orders.csv is the table written in the markup (the first 14 of its rows are loaded)
+  var oCols = [].map.call(thead.querySelectorAll('th'), function (th) { return th.firstChild.textContent; });
+  var oRows = [].map.call(tbody.rows, function (tr) {
+    var o = {};
+    [].forEach.call(tr.cells, function (td, i) { o[oCols[i]] = td.hasAttribute('data-empty') ? '' : td.textContent; });
+    return o;
+  });
+  var aCols = ['account_id', 'account_name', 'contact_email', 'industry', 'tier', 'billing_region'];
+  var aRows = [
+    ['A-2201', 'Kestrel Labs', 'anna.k@mail.com', 'Software', 'Enterprise', 'EU-South'],
+    ['A-2202', 'Tidewater Co.', 'j.moreno@mail.com', 'Retail', 'Growth', 'EU-North'],
+    ['A-2203', 'Pinegrove', 'li.wei@mail.com', 'Retail', 'Enterprise', 'NA-East'],
+    ['A-2204', 'Northwind Studio', 'sam.o@mail.com', 'Logistics', 'Growth', 'APAC'],
+    ['A-2205', 'Brightline GmbH', 'r.patel@mail.com', 'Media', 'Starter', 'EU-South'],
+    ['A-2206', 'Harbor & Co', 'm.fischer@mail.com', 'Media', 'Growth', 'EU-West'],
+    ['A-2207', 'Oakmere', 't.nguyen@mail.com', 'Media', 'Growth', 'NA-South'],
+    ['A-2208', 'Sora Works', 'e.rossi@mail.com', 'Media', 'Starter', 'EU-North'],
+    ['A-2209', 'Meridian Health', 'c.brown@mail.com', 'Healthcare', 'Growth', 'APAC'],
+    ['A-2210', 'Casa Verde', 'h.sato@mail.com', 'Logistics', 'Enterprise', 'NA-South'],
+    ['A-2211', 'Ledgerline', 'o.adeyemi@mail.com', 'Finance', 'Growth', 'NA-East'],
+    ['A-2212', 'Fjord Analytics', 'p.silva@mail.com', 'Retail', 'Starter', 'EU-South'],
+    ['A-2213', 'Quayside Ltd', 'k.larsen@mail.com', 'Finance', 'Growth', 'NA-South'],
+    ['A-2214', 'Altamira', 'd.cohen@mail.com', 'Logistics', 'Growth', 'NA-South'],
+    ['A-2215', 'Bluestem', 'f.dubois@mail.com', 'Software', 'Growth', 'EU-North'],
+    ['A-2216', 'Copperleaf', 'g.hall@mail.com', 'Logistics', 'Growth', 'EU-Central'],
+    ['A-2217', 'Driftwood AG', 'n.ivanova@mail.com', 'Healthcare', 'Starter', 'EU-South'],
+    ['A-2218', 'Emberly', 'w.chen@mail.com', 'Finance', 'Growth', 'NA-South'],
+    ['A-2219', 'Foxglove', 'b.kowalski@mail.com', 'Logistics', 'Starter', 'EU-South'],
+    ['A-2220', 'Graniteview', 'y.tanaka@mail.com', 'Retail', 'Growth', 'EU-South'],
+    ['A-2221', 'Hollowbrook', 'l.moretti@mail.com', 'Retail', 'Growth', 'APAC'],
+    ['A-2222', 'Ironbark', 'a.byrne@mail.com', 'Retail', 'Enterprise', 'EU-North'],
+    ['A-2223', 'Juniper & Sons', 'q.zhou@mail.com', 'Healthcare', 'Growth', 'APAC'],
+    ['A-2224', 'Kingsmoor', 's.mensah@mail.com', 'Logistics', 'Growth', 'APAC'],
+    ['A-2225', 'Larkspur', 'i.novak@mail.com', 'Healthcare', 'Growth', 'APAC'],
+    ['A-2226', 'Moorfield', 'v.ruiz@mail.com', 'Retail', 'Growth', 'EU-South'],
+    ['A-2227', 'Nettlecombe', 'm.lowe@mail.com', 'Retail', 'Growth', 'NA-East'],
+    ['A-2228', 'Orchard Row', 'k.berg@mail.com', 'Healthcare', 'Starter', 'NA-East'],
+    ['A-2229', 'Palisade', 'z.haddad@mail.com', 'Software', 'Growth', 'EU-Central'],
+    ['A-2230', 'Quillon', 'u.okafor@mail.com', 'Software', 'Enterprise', 'EU-Central'],
+    ['A-2231', 'Redfern', 'r.santos@mail.com', 'Logistics', 'Starter', 'EU-North'],
+    ['A-2232', 'Silverbirch', 'e.jensen@mail.com', 'Logistics', 'Starter', 'NA-South'],
+    ['A-2233', 'Thornbury', 't.kim@mail.com', 'Healthcare', 'Enterprise', 'NA-South'],
+    ['A-2234', 'Umberland', 'a.costa@mail.com', 'Healthcare', 'Enterprise', 'EU-Central']
+  ].map(function (r) { var o = {}; aCols.forEach(function (c, i) { o[c] = r[i]; }); return o; });
+
+  // total = rows in the full dataset; only the first rows are loaded in the preview
+  var DS = {
+    orders: {
+      id: 'orders', kind: 'source', name: 'sample_orders.csv', badge: ['CSV', '#E3F2E8', '#1D6B3A'], from: 'Uploaded file',
+      total: 1248, cols: oCols, rows: oRows, empties: { region: 37 }, nullsAny: 96, changes: 3,
+      log: [
+        ['Removed column <span class="hp-code">discount_code</span>', 'October 3, 2026, 2:06 PM'],
+        ['Renamed <span class="hp-code">cust_mail</span> → <span class="hp-code">customer_email</span>', 'October 3, 2026, 2:04 PM'],
+        ['Imported 1,248 rows', 'October 3, 2026, 2:02 PM']
+      ]
+    },
+    accounts: {
+      id: 'accounts', kind: 'source', name: 'Salesforce · Accounts', badge: ['SF', '#E4ECFD', '#2350B8'], from: 'Salesforce · Account object',
+      total: 34, cols: aCols, rows: aRows, empties: {}, nullsAny: 0, changes: 0,
+      log: [['Synced 34 accounts', 'October 3, 2026, 2:01 PM']]
+    }
+  };
+  var order = ['orders', 'accounts'], seq = 0;
+  var MAX = 5;
+
+  /* ---------- adding data ---------- */
+  var loadingLabel = null;   // set while a new source is "loading": its tab shows a spinner
+  var DEMO = {
+    snowflake: {
+      name: 'Snowflake · REFUNDS', short: 'Snowflake', badge: ['SNW', '#E3F1FB', '#1E6FA8'], from: 'Snowflake · SALES_DB.PUBLIC.REFUNDS',
+      cols: ['refund_id', 'order_id', 'refund_amount', 'reason', 'refunded_at'],
+      rows: [['R-8810', '1001', '49.00', 'changed mind', '2026-08-10'], ['R-8811', '1027', '147.00', 'duplicate', '2026-08-11'], ['R-8812', '1043', '49.00', 'late delivery', '2026-08-13'], ['R-8813', '1035', '147.00', 'late delivery', '2026-08-14'], ['R-8814', '1017', '98.00', 'late delivery', '2026-08-16'], ['R-8815', '1029', '98.00', 'changed mind', '2026-08-17'], ['R-8816', '1062', '98.00', 'late delivery', '2026-08-19'], ['R-8817', '1064', '49.00', 'damaged', '2026-08-20'], ['R-8818', '1050', '49.00', 'damaged', '2026-08-22'], ['R-8819', '1048', '49.00', 'late delivery', '2026-08-23'], ['R-8820', '1008', '98.00', 'changed mind', '2026-08-25'], ['R-8821', '1045', '147.00', 'late delivery', '2026-08-26'], ['R-8822', '1041', '147.00', 'damaged', '2026-08-28'], ['R-8823', '1011', '98.00', 'late delivery', '2026-08-29'], ['R-8824', '1035', '98.00', 'duplicate', '2026-08-31'], ['R-8825', '1013', '98.00', 'duplicate', '2026-09-01'], ['R-8826', '1064', '49.00', 'changed mind', '2026-09-03'], ['R-8827', '1019', '98.00', 'damaged', '2026-09-04']]
+    },
+    salesforce: {
+      name: 'Salesforce · Opportunities', short: 'Salesforce', badge: ['SF', '#E4ECFD', '#2350B8'], from: 'Salesforce · Opportunity object',
+      cols: ['opp_id', 'account_name', 'stage', 'value', 'close_date', 'owner'],
+      rows: [['O-500', 'Kestrel Labs', 'Closed won', '33000.00', '2026-08-20', 'M. Weber'], ['O-501', 'Graniteview', 'Prospecting', '11000.00', '2026-08-21', 'S. Okafor'], ['O-502', 'Fjord Analytics', 'Closed won', '38000.00', '2026-08-22', 'S. Okafor'], ['O-503', 'Brightline GmbH', 'Prospecting', '12000.00', '2026-08-23', 'S. Okafor'], ['O-504', 'Ledgerline', 'Prospecting', '38000.00', '2026-08-24', 'S. Okafor'], ['O-505', 'Pinegrove', 'Negotiation', '39000.00', '2026-08-25', 'S. Okafor'], ['O-506', 'Oakmere', 'Closed won', '20000.00', '2026-08-26', 'M. Weber'], ['O-507', 'Pinegrove', 'Negotiation', '24000.00', '2026-08-27', 'A. Lind'], ['O-508', 'Casa Verde', 'Proposal', '29000.00', '2026-08-28', 'S. Okafor'], ['O-509', 'Brightline GmbH', 'Closed won', '40000.00', '2026-08-29', 'A. Lind'], ['O-510', 'Sora Works', 'Closed lost', '26000.00', '2026-08-30', 'A. Lind'], ['O-511', 'Sora Works', 'Proposal', '8000.00', '2026-08-31', 'S. Okafor'], ['O-512', 'Ledgerline', 'Prospecting', '35000.00', '2026-09-01', 'S. Okafor'], ['O-513', 'Harbor & Co', 'Proposal', '33000.00', '2026-09-02', 'A. Lind'], ['O-514', 'Quayside Ltd', 'Negotiation', '23000.00', '2026-09-03', 'M. Weber'], ['O-515', 'Copperleaf', 'Negotiation', '25000.00', '2026-09-04', 'S. Okafor'], ['O-516', 'Orchard Row', 'Negotiation', '15000.00', '2026-09-05', 'S. Okafor'], ['O-517', 'Juniper & Sons', 'Proposal', '22000.00', '2026-09-06', 'A. Lind'], ['O-518', 'Fjord Analytics', 'Negotiation', '27000.00', '2026-09-07', 'M. Weber'], ['O-519', 'Ironbark', 'Proposal', '34000.00', '2026-09-08', 'A. Lind'], ['O-520', 'Brightline GmbH', 'Closed won', '5000.00', '2026-09-09', 'S. Okafor'], ['O-521', 'Ledgerline', 'Prospecting', '29000.00', '2026-09-10', 'S. Okafor'], ['O-522', 'Quillon', 'Negotiation', '8000.00', '2026-09-11', 'S. Okafor'], ['O-523', 'Juniper & Sons', 'Negotiation', '40000.00', '2026-09-12', 'M. Weber'], ['O-524', 'Tidewater Co.', 'Proposal', '15000.00', '2026-09-13', 'M. Weber'], ['O-525', 'Hollowbrook', 'Proposal', '19000.00', '2026-09-14', 'A. Lind']]
+    },
+    database: {
+      name: 'Postgres · orders_2025', short: 'Postgres', badge: ['PG', '#ECEAE4', '#3C3F46'], from: 'Postgres · public.orders_2025',
+      cols: ['id', 'order_date', 'customer_email', 'region', 'product', 'qty', 'amount', 'status'],
+      rows: [['801', '2025-10-01', 'r.patel@mail.com', 'NA-East', 'Starter plan', '2', '98.00', 'refunded'], ['802', '2025-10-03', 'z.haddad@mail.com', 'APAC', 'Pro plan', '1', '99.00', 'paid'], ['803', '2025-10-05', 'z.haddad@mail.com', 'EU-West', 'Team plan', '3', '447.00', 'paid'], ['804', '2025-10-07', 's.mensah@mail.com', 'EU-South', 'Team plan', '1', '149.00', 'paid'], ['805', '2025-10-09', 'k.berg@mail.com', 'EU-West', 'Pro plan', '3', '297.00', 'paid'], ['806', '2025-10-11', 'e.rossi@mail.com', 'EU-South', 'Starter plan', '1', '49.00', 'refunded'], ['807', '2025-10-13', 'b.kowalski@mail.com', 'EU-West', 'Pro plan', '2', '198.00', 'paid'], ['808', '2025-10-15', 'u.okafor@mail.com', 'NA-East', 'Team plan', '1', '149.00', 'paid'], ['809', '2025-10-17', 'g.hall@mail.com', 'EU-North', 'Pro plan', '2', '198.00', 'paid'], ['810', '2025-10-19', 'a.byrne@mail.com', 'EU-Central', 'Starter plan', '1', '49.00', 'paid'], ['811', '2025-10-21', 'y.tanaka@mail.com', 'APAC', 'Starter plan', '2', '98.00', 'paid'], ['812', '2025-10-23', 'r.santos@mail.com', 'EU-Central', 'Starter plan', '1', '49.00', 'paid'], ['813', '2025-10-25', 'y.tanaka@mail.com', 'EU-West', 'Add-on seats', '2', '24.00', 'refunded'], ['814', '2025-10-27', 'u.okafor@mail.com', 'EU-Central', 'Pro plan', '3', '297.00', 'paid'], ['815', '2025-10-29', 'sam.o@mail.com', 'EU-North', 'Add-on seats', '3', '36.00', 'paid'], ['816', '2025-10-31', 'n.ivanova@mail.com', 'EU-West', 'Team plan', '2', '298.00', 'paid'], ['817', '2025-11-02', 'm.fischer@mail.com', 'EU-West', 'Pro plan', '3', '297.00', 'paid'], ['818', '2025-11-04', 'h.osei@mail.com', 'NA-South', 'Add-on seats', '3', '36.00', 'paid'], ['819', '2025-11-06', 't.kim@mail.com', 'EU-South', 'Starter plan', '1', '49.00', 'paid'], ['820', '2025-11-08', 'li.wei@mail.com', 'EU-South', 'Starter plan', '2', '98.00', 'paid'], ['821', '2025-11-10', 'i.novak@mail.com', 'EU-West', 'Starter plan', '2', '98.00', 'paid'], ['822', '2025-11-12', 'n.patel@mail.com', 'EU-Central', 'Team plan', '3', '447.00', 'paid'], ['823', '2025-11-14', 'j.moreno@mail.com', 'NA-East', 'Team plan', '1', '149.00', 'paid'], ['824', '2025-11-16', 't.kim@mail.com', 'EU-South', 'Starter plan', '2', '98.00', 'paid'], ['825', '2025-11-18', 'li.wei@mail.com', 'NA-South', 'Pro plan', '1', '99.00', 'paid'], ['826', '2025-11-20', 't.kim@mail.com', 'EU-South', 'Pro plan', '1', '99.00', 'paid'], ['827', '2025-11-22', 'w.chen@mail.com', 'NA-East', 'Starter plan', '2', '98.00', 'paid'], ['828', '2025-11-24', 'r.santos@mail.com', 'EU-West', 'Starter plan', '3', '147.00', 'paid'], ['829', '2025-11-26', 'e.rossi@mail.com', 'EU-West', 'Add-on seats', '3', '36.00', 'paid'], ['830', '2025-11-28', 'c.dias@mail.com', 'EU-North', 'Add-on seats', '1', '12.00', 'paid'], ['831', '2025-11-30', 'c.brown@mail.com', 'EU-North', 'Team plan', '1', '149.00', 'paid'], ['832', '2025-12-02', 'e.jensen@mail.com', 'NA-East', 'Pro plan', '2', '198.00', 'paid'], ['833', '2025-12-04', 'f.dubois@mail.com', 'APAC', 'Add-on seats', '3', '36.00', 'paid'], ['834', '2025-12-06', 's.mensah@mail.com', 'APAC', 'Add-on seats', '2', '24.00', 'refunded'], ['835', '2025-12-08', 'm.lowe@mail.com', 'EU-North', 'Team plan', '2', '298.00', 'refunded'], ['836', '2025-12-10', 's.mensah@mail.com', 'NA-South', 'Add-on seats', '2', '24.00', 'refunded'], ['837', '2025-12-12', 'r.patel@mail.com', 'APAC', 'Add-on seats', '3', '36.00', 'paid'], ['838', '2025-12-14', 'q.zhou@mail.com', 'EU-North', 'Add-on seats', '1', '12.00', 'paid'], ['839', '2025-12-16', 'e.jensen@mail.com', 'EU-North', 'Pro plan', '2', '198.00', 'paid'], ['840', '2025-12-18', 'p.silva@mail.com', 'APAC', 'Starter plan', '2', '98.00', 'paid']]
+    }
+  };
+  var FILE_BADGE = { csv: ['CSV', '#E3F2E8', '#1D6B3A'], txt: ['CSV', '#E3F2E8', '#1D6B3A'], tsv: ['TSV', '#E3F2E8', '#1D6B3A'], json: ['JSON', '#EFEEFC', '#3F37C9'] };
+  var MAX_LOADED = 300;   // rows kept for the preview; the dataset still reports every row
+
+  function tableDataset(name, badge, from, cols, rows) {
+    var objs = rows.map(function (r) { var o = {}; cols.forEach(function (c, i) { o[c] = r[i] == null ? '' : String(r[i]); }); return o; });
+    var empties = {}, anyEmpty = 0;
+    objs.forEach(function (o) {
+      var e = false;
+      cols.forEach(function (c) { if (isEmpty(o[c])) { empties[c] = (empties[c] || 0) + 1; e = true; } });
+      if (e) anyEmpty++;
+    });
+    return { id: 's' + (++seq), kind: 'source', name: name, badge: badge, from: from, total: objs.length, cols: cols, rows: objs.slice(0, MAX_LOADED),
+      empties: empties, nullsAny: anyEmpty, changes: 0, log: [['Imported ' + fmt(objs.length) + ' rows', stamp()]] };
+  }
+  function parseDelimited(text, delim) {
+    var rows = [], row = [], cur = '', quoted = false, i, c;
+    for (i = 0; i < text.length; i++) {
+      c = text.charAt(i);
+      if (quoted) { if (c === '"') { if (text.charAt(i + 1) === '"') { cur += '"'; i++; } else quoted = false; } else cur += c; }
+      else if (c === '"') quoted = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text.charAt(i + 1) === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+      else cur += c;
+    }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(function (r) { return r.length > 1 || (r[0] || '').trim() !== ''; });
+  }
+  function cleanHeaders(head) {
+    var seen = {};
+    return head.map(function (h, i) {
+      var n = String(h).trim() || 'column_' + (i + 1);
+      if (seen[n]) { var k = 2; while (seen[n + '_' + k]) k++; n = n + '_' + k; }
+      seen[n] = true; return n;
+    });
+  }
+  function uniqueName(name) {
+    var taken = order.map(function (id) { return DS[id].name; }), n = name, k = 2;
+    var dot = name.lastIndexOf('.'), base = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '';
+    while (taken.indexOf(n) > -1) { n = base + ' (' + k + ')' + ext; k++; }
+    return n;
+  }
+  function finishAdd(d) {
+    DS[d.id] = d; order.push(d.id);
+    activate(d.id);
+    toast(['Opened ', d.name, ' in a new tab.']);
+    var tab = document.querySelector('.ds-tab[aria-current="true"] .ds-main'); if (tab) tab.focus();
+  }
+  function addDemo(key) {
+    if (loadingLabel) return;
+    var def = DEMO[key];
+    var open = order.filter(function (id) { return DS[id].name === def.name; })[0];
+    if (open) { activate(open); toast(['', def.name, ' is already open.']); return; }
+    loadingLabel = 'Loading ' + def.short + '…'; renderTabs();
+    setTimeout(function () {
+      loadingLabel = null;
+      finishAdd(tableDataset(def.name, def.badge, def.from, def.cols, def.rows));
+    }, 1200);
+  }
+  function importFile(file) {
+    var m = file.name.match(/\.([a-z0-9]+)$/i), ext = m ? m[1].toLowerCase() : '';
+    if (!FILE_BADGE[ext]) { toast(['Only CSV, TSV and JSON files can be opened in this preview. ', file.name, ' was not added.']); return; }
+    if (file.size > 5e6) { toast(['', file.name, ' is larger than 5 MB. Try a smaller file.']); return; }
+    if (loadingLabel) return;
+    if (order.length >= MAX) { toast(['All ' + MAX + ' dataset slots are used. Close a tab first.']); return; }
+    loadingLabel = 'Loading ' + file.name + '…'; renderTabs();
+    var fail = function () { loadingLabel = null; renderTabs(); toast(['Could not read ', file.name, '. Check that it is a valid CSV, TSV or JSON file.']); };
+    file.text().then(function (text) {
+      text = text.replace(/^﻿/, '');
+      var cols, rows;
+      if (ext === 'json') {
+        var arr = JSON.parse(text);
+        if (!Array.isArray(arr) || !arr.length || typeof arr[0] !== 'object' || arr[0] === null) throw new Error('shape');
+        cols = [];
+        arr.slice(0, 100).forEach(function (o) { Object.keys(o || {}).forEach(function (k) { if (cols.indexOf(k) < 0) cols.push(k); }); });
+        rows = arr.map(function (o) { return cols.map(function (c) { var v = o ? o[c] : ''; return v == null ? '' : typeof v === 'object' ? JSON.stringify(v) : v; }); });
+      } else {
+        var first = text.split(/\r?\n/)[0] || '';
+        var delim = ext === 'tsv' || (first.indexOf('\t') > -1 && first.indexOf(',') < 0) ? '\t' : ',';
+        var table = parseDelimited(text, delim);
+        if (table.length < 1) throw new Error('empty');
+        cols = cleanHeaders(table[0]); rows = table.slice(1);
+      }
+      if (!cols.length || !rows.length) throw new Error('empty');
+      loadingLabel = null;
+      finishAdd(tableDataset(uniqueName(file.name), FILE_BADGE[ext], 'Uploaded file', cols, rows));
+    }).catch(fail);
+  }
+
+  /* ---------- combine ---------- */
+  function computeMerge(L, R, spec, rightShort) {
+    var rCols = (spec.rightCols || R.cols.filter(function (c) { return c !== spec.rk; })).filter(function (c) { return R.cols.indexOf(c) > -1 && c !== spec.rk; });
+    var outR = rCols.map(function (c) { return L.cols.indexOf(c) > -1 ? c + '_' + rightShort : c; });
+    var idx = Object.create(null), used = {}, rows = [];
+    R.rows.forEach(function (r, i) { var k = String(r[spec.rk] == null ? '' : r[spec.rk]); if (!isEmpty(k) && !(k in idx)) idx[k] = i; });
+    L.rows.forEach(function (l) {
+      var k = String(l[spec.lk] == null ? '' : l[spec.lk]);
+      var hit = !isEmpty(k) && (k in idx) ? R.rows[idx[k]] : null;
+      if (hit) used[idx[k]] = true;
+      if (!hit && spec.keep === 'matched') return;
+      var n = Object.assign({}, l, { __m: !!hit });
+      rCols.forEach(function (c, j) { n[outR[j]] = hit ? hit[c] : ''; });
+      rows.push(n);
+    });
+    R.rows.forEach(function (r, i) {
+      if (used[i] || spec.keep !== 'both') return;
+      var n = { __m: false };
+      L.cols.forEach(function (c) { n[c] = c === spec.lk ? r[spec.rk] : ''; });
+      rCols.forEach(function (c, j) { n[outR[j]] = r[c]; });
+      rows.push(n);
+    });
+    var src = {};
+    L.cols.forEach(function (c) { src[c] = 'L'; });
+    outR.forEach(function (c) { src[c] = 'R'; });
+    return { cols: L.cols.concat(outR), rows: rows, src: src };
+  }
+  function computeAppend(L, R) {
+    var cols = L.cols.concat(R.cols.filter(function (c) { return L.cols.indexOf(c) < 0; }));
+    var src = {};
+    cols.forEach(function (c) { src[c] = L.cols.indexOf(c) > -1 && R.cols.indexOf(c) > -1 ? 'B' : L.cols.indexOf(c) > -1 ? 'L' : 'R'; });
+    var fill = function (r) { var n = {}; cols.forEach(function (c) { n[c] = r[c] == null ? '' : r[c]; }); return n; };
+    return { cols: cols, rows: L.rows.map(fill).concat(R.rows.map(fill)), src: src };
+  }
+  // Placeholder match counts for the full datasets, seen from each side
+  var PLACE = { 'orders>accounts': { matched: 1053, unR: 9 }, 'accounts>orders': { matched: 25, unR: 195 } };
+  function matchStats(spec) {
+    var Ld = DS[spec.leftId], Rd = DS[spec.rightId], m = PLACE[spec.leftId + '>' + spec.rightId];
+    if (m) {   // the two sample datasets: placeholder counts for the full data
+      var good = /email/.test(spec.lk) && /email/.test(spec.rk);   // only the two email columns line up in the sample data
+      var matched = good ? m.matched : 0;
+      return { total: Ld.total, matched: matched, unL: Ld.total - matched, unR: good ? m.unR : Rd.total };
+    }
+    var idx = Object.create(null), used = {}, hits = 0;
+    Rd.rows.forEach(function (r, i) { var k = String(r[spec.rk] == null ? '' : r[spec.rk]); if (!isEmpty(k) && !(k in idx)) idx[k] = i; });
+    Ld.rows.forEach(function (l) { var k = String(l[spec.lk] == null ? '' : l[spec.lk]); if (!isEmpty(k) && (k in idx)) { hits++; used[idx[k]] = true; } });
+    var mt = Math.round(hits * Ld.total / Math.max(1, Ld.rows.length));
+    var usedR = Math.round(Object.keys(used).length * Rd.total / Math.max(1, Rd.rows.length));
+    return { total: Ld.total, matched: mt, unL: Ld.total - mt, unR: Math.max(0, Rd.total - usedR) };
+  }
+  function build(d) {
+    var s = d.spec, Ld = DS[s.leftId], Rd = DS[s.rightId], empties = {};
+    var out = s.mode === 'append' ? computeAppend(Ld, Rd) : computeMerge(Ld, Rd, s, shortName(Rd.name));
+    d.cols = out.cols; d.rows = out.rows; d.src = out.src;
+    if (s.mode === 'merge') {
+      var st = matchStats(s);
+      d.matched = st.matched; d.unL = st.unL; d.unR = st.unR;
+      d.total = s.keep === 'matched' ? st.matched : s.keep === 'both' ? Ld.total + st.unR : Ld.total;
+      d.cols.forEach(function (c) {
+        var n = out.src[c] === 'L' ? (Ld.empties[c] || 0) + (s.keep === 'both' && c !== s.lk ? st.unR : 0) : (s.keep !== 'matched' ? st.unL : 0);
+        if (n) empties[c] = n;
+      });
+      d.nullsAny = (s.keep !== 'matched' ? st.unL : 0) + (s.keep === 'both' ? st.unR : 0);
+    } else {
+      d.total = Ld.total + Rd.total;
+      d.cols.forEach(function (c) {
+        var n = (Ld.cols.indexOf(c) > -1 ? (Ld.empties[c] || 0) : Ld.total) + (Rd.cols.indexOf(c) > -1 ? (Rd.empties[c] || 0) : Rd.total);
+        if (n) empties[c] = n;
+      });
+      d.nullsAny = out.cols.some(function (c) { return out.src[c] !== 'B'; }) ? d.total : Ld.nullsAny + Rd.nullsAny;
+    }
+    d.empties = empties;
+  }
+  function unmatchedCount(d) { return d.spec.mode !== 'merge' ? 0 : (d.spec.keep !== 'matched' ? d.unL : 0) + (d.spec.keep === 'both' ? d.unR : 0); }
+  function overlaps(d) {
+    if (d.kind !== 'combined' || d.spec.mode !== 'merge') return [];
+    var rs = shortName(DS[d.spec.rightId].name), pairs = [];
+    var Ls = d.cols.filter(function (c) { return d.src[c] === 'L'; }), Rr = d.cols.filter(function (c) { return d.src[c] === 'R'; });
+    Ls.forEach(function (l) { Rr.forEach(function (r) {
+      if ((r === l + '_' + rs || lastTok(r) === lastTok(l)) && lastTok(l) !== 'id') pairs.push([l, r]);
+    }); });
+    return pairs;
+  }
+  function suggestKeys(Lc, Rc) {
+    var best = null, score = -1;
+    Lc.forEach(function (a) { Rc.forEach(function (b) {
+      var s = -1;
+      if (a === b) s = 3; else if (lastTok(a) === lastTok(b)) s = 2; else if (b.slice(-a.length - 1) === '_' + a || a.slice(-b.length - 1) === '_' + b) s = 2;
+      if (s < 0) return;
+      if (/email/.test(a)) s += 3; else if (/name/.test(a)) s += 1;
+      if (s > score) { score = s; best = [a, b]; }
+    }); });
+    return best || [Lc[0], Rc[0]];
+  }
+  var KEEP = { all: 'keep all left rows', matched: 'only matched rows', both: 'keep everything' };
+
+  /* ---------- state ---------- */
+  var active = 'orders', group = {}, op = null, scope = 'col', search = '', unmatchedOnly = false;
+  var rs = { choice: 'fill', pair: 0 }, pick = null;
+  var panes = { list: $('paneList'), nulls: $('paneNulls'), other: $('paneOther'), resolve: $('paneResolve'), pick: $('panePick') };
+  var OTHER = { cols: ['Remove columns', "Drop columns you don't need.", 'Remove column', false], ren: ['Replace / rename', 'Rename a column or replace values.', 'Rename column', true] };
+  var ICON = {
+    right: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C8F96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+    check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>'
+  };
+  var P = {
+    cols: 'M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 4v16M15 4v16',
+    nulls: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM6.5 17.5l11-11',
+    ren: 'M4 8h13l-3-3M20 16H7l3 3',
+    combine: 'M3 6.5A1.5 1.5 0 0 1 4.5 5h4A1.5 1.5 0 0 1 10 6.5v11A1.5 1.5 0 0 1 8.5 19h-4A1.5 1.5 0 0 1 3 17.5zM14 6.5A1.5 1.5 0 0 1 15.5 5h4A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-4a1.5 1.5 0 0 1-1.5-1.5zM10 12h4',
+    edit: 'M4 20h4l10-10-4-4L4 16zM13 7l4 4',
+    filter: 'M3 5h18l-7 8v6l-4-2v-4z',
+    resolve: 'M8 4v16M16 4v16M4 12h16',
+    refresh: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7',
+    pick: 'M4 6h16M4 12h10M4 18h6'
+  };
+
+  /* ---------- rendering ---------- */
+  function renderTabs() {
+    var nav = document.querySelector('nav[aria-label="Open datasets"]');
+    [].slice.call(nav.querySelectorAll('.ds-tab')).forEach(function (t) { t.parentNode.removeChild(t); });
+    order.forEach(function (id) {
+      var d = DS[id], t = document.createElement('div');
+      t.className = 'ds-tab'; t.dataset.ds = id; t.setAttribute('aria-current', String(id === active));
+      t.innerHTML = '<button class="ds-main"><span class="ds-badge" style="background:' + d.badge[1] + ';color:' + d.badge[2] + '">' + esc(d.badge[0]) + '</span><span class="ds-name">' + esc(d.name) + '</span>' +
+        (d.changes ? '<span class="ds-dirty" aria-label="Unsaved changes"></span>' : '') + '</button>' +
+        '<button class="ds-x" aria-label="Close ' + esc(d.name) + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5B5E66" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+      nav.insertBefore(t, $('addBtn'));
+    });
+    if (loadingLabel) {
+      var lt = document.createElement('div');
+      lt.className = 'ds-tab ds-loading'; lt.setAttribute('aria-busy', 'true');
+      lt.innerHTML = '<span class="ds-spin" aria-hidden="true"></span><span class="ds-name">' + esc(loadingLabel) + '</span>';
+      nav.insertBefore(lt, $('addBtn'));
+    }
+    var used = order.length + (loadingLabel ? 1 : 0), free = MAX - used;
+    $('dsCount').textContent = used + ' / ' + MAX + ' datasets';
+    [].forEach.call(document.querySelectorAll('#ovAdd [data-add]'), function (b) { b.disabled = free < 1 || !!loadingLabel; });
+  }
+  function renderFileBar(d) {
+    var combined = d.kind === 'combined', merge = combined && d.spec.mode === 'merge';
+    $('fbName').textContent = d.name;
+    $('fbPill').hidden = !combined;
+    if (combined) $('fbPill').textContent = merge ? 'Merged dataset' : 'Appended dataset';
+    $('fbMeta').textContent = fmt(d.total) + ' rows · ' + d.cols.length + ' columns' + (merge ? ' · ' + fmt(d.matched) + ' matched' : '') + ' · ' +
+      (d.changes ? d.changes + ' change' + (d.changes > 1 ? 's' : '') + ' not saved' : 'no unsaved changes');
+    $('undoBtn').disabled = !d.changes;
+    $('exName').textContent = d.name;
+    $('exChanges').textContent = d.changes ? ' with ' + d.changes + ' change' + (d.changes > 1 ? 's' : '') + ' applied' : '';
+    var orig = d.kind === 'source' ? (d.id === 'orders' ? 'csv' : 'salesforce') : null;   // where the data came from
+    [].forEach.call(document.querySelectorAll('#ovDl [data-fmt]'), function (b) {
+      var on = b.dataset.fmt === orig;
+      b.classList.toggle('is-orig', on);
+      b.querySelector('.ex-hint').textContent = on ? (d.id === 'orders' ? 'original format' : 'original source') : '';
+    });
+    $('histCount').textContent = d.log.length;
+  }
+  function renderLineage(d) {
+    var box = $('lineage');
+    box.hidden = d.kind !== 'combined';
+    if (d.kind !== 'combined') { box.innerHTML = ''; return; }
+    var s = d.spec, L = DS[s.leftId], R = DS[s.rightId], merge = s.mode === 'merge';
+    var chip = function (x, cls, sq) { return '<button class="chip-src ' + cls + '" data-go="' + x.id + '"><span class="sq" style="background:' + sq + '"></span>' + esc(x.name) + '</button>'; };
+    box.innerHTML = '<span class="ln-cap">Built from</span>' + chip(L, 'chip-l', '#3F37C9') + '<span class="ln-cap">+</span>' + chip(R, 'chip-r', '#1E8FA8') +
+      '<span class="ln-how">' + (merge ? 'merge on ' + esc(s.lk) + ' = ' + esc(s.rk) + ' · ' + KEEP[s.keep] : 'append rows') + '</span>' +
+      '<button class="link" data-edit style="margin-left:auto;padding:0 8px">Edit ' + (merge ? 'merge' : 'append') + '</button>';
+  }
+  function renderTable() {
+    var d = DS[active], combined = d.kind === 'combined', types = {};
+    d.cols.forEach(function (c) { types[c] = colType(d.rows, c); });
+    var sqFor = function (c) { return d.src[c] === 'R' ? '#1E8FA8' : d.src[c] === 'B' ? 'linear-gradient(90deg,#3F37C9 50%,#1E8FA8 50%)' : '#3F37C9'; };
+    var tr = document.createElement('tr');
+    d.cols.forEach(function (c) {
+      var th = document.createElement('th'), sub = document.createElement('span'), n = d.empties[c];
+      if (types[c] === 'number') th.className = 'num';
+      if (combined) { var sq = document.createElement('span'); sq.className = 'sq'; sq.style.cssText = 'background:' + sqFor(c) + ';margin-right:6px'; th.appendChild(sq); }
+      th.appendChild(document.createTextNode(c));
+      sub.className = 't'; sub.appendChild(document.createTextNode(types[c]));
+      if (n) { sub.appendChild(document.createTextNode(' · ')); var w = document.createElement('span'); w.style.color = 'var(--warn)'; w.textContent = fmt(n) + ' empty'; sub.appendChild(w); }
+      th.appendChild(sub); tr.appendChild(th);
+    });
+    thead.innerHTML = ''; thead.appendChild(tr);
+
+    var q = search.trim().toLowerCase(), rows = d.rows;
+    if (unmatchedOnly && combined) rows = rows.filter(function (r) { return r.__m === false; });
+    if (q) rows = rows.filter(function (r) { return d.cols.some(function (c) { return String(r[c] == null ? '' : r[c]).toLowerCase().indexOf(q) > -1; }); });
+    tbody.innerHTML = '';
+    rows.forEach(function (r) {
+      var row = document.createElement('tr');
+      if (combined && r.__m === false) row.className = 'unm';
+      d.cols.forEach(function (c) {
+        var v = r[c], e = isEmpty(v), td = document.createElement('td'), cls = [];
+        if (types[c] === 'number') cls.push('num'); else if (types[c] === 'date' || /(^|_)id$/.test(c)) cls.push('code');
+        if (e) { cls.push('empty'); td.setAttribute('data-empty', ''); }
+        if (combined && d.src[c] === 'R') cls.push('src-r');
+        td.className = cls.join(' '); td.textContent = e ? '—' : v; row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+    if (!rows.length) {
+      var none = document.createElement('tr'), cell = document.createElement('td');
+      cell.colSpan = d.cols.length || 1; cell.style.cssText = 'height:120px;text-align:center;color:var(--muted)';
+      cell.textContent = unmatchedOnly && combined && !q ? 'None of the ' + fmt(d.rows.length) + ' loaded rows are unmatched.' : 'No rows match.';
+      none.appendChild(cell); tbody.appendChild(none);
+    }
+    $('fnShow').textContent = 'Showing ' + fmt(rows.length) + ' of ' + fmt(d.total) + (rows.length !== d.rows.length ? ' (filtered)' : '');
+    $('fnCols').textContent = d.cols.length + ' columns';
+    document.querySelector('.work .scroll').scrollTop = 0;
+    paint();
+  }
+  function renderData(d) {
+    $('searchInput').placeholder = 'Search ' + fmt(d.total) + ' rows';
+    $('searchInput').value = search;
+    var from = $('dataFrom'), combined = d.kind === 'combined';
+    if (combined) {
+      var L = DS[d.spec.leftId], R = DS[d.spec.rightId];
+      from.innerHTML = '<span class="lg"><span class="sq" style="background:#3F37C9"></span>from ' + esc(L.name) + '</span><span class="lg"><span class="sq" style="background:#1E8FA8"></span>from ' + esc(R.name) + '</span>';
+    } else { from.textContent = d.from; }
+    var banner = $('unmBanner'), showBanner = unmatchedOnly && combined;
+    banner.hidden = !showBanner;
+    if (showBanner) $('unmText').innerHTML = '<b>' + fmt(unmatchedCount(d)) + ' rows</b> have no match in ' + esc(DS[d.spec.rightId].name) + '. Fix them in the source tab, then refresh.';
+    renderTable();
+  }
+  function opItem(key, name, desc, path, ink, bg, badge, disabled) {
+    return '<button class="op" data-op="' + key + '"' + (disabled ? ' disabled' : '') + '><span class="ic" style="background:' + bg + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + ink +
+      '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></svg></span><span style="flex:1"><div class="nm">' + name + '</div><div class="ds">' + desc + '</div></span>' +
+      (badge ? '<span class="count count-warn">' + fmt(badge) + '</span>' : '') + ICON.right + '</button>';
+  }
+  function groupLabel(d, k) { return k === 'combined' ? (d.spec.mode === 'append' ? 'Append' : 'Merge') : ({ prepare: 'Prepare', transform: 'Transform', ai: 'AI' })[k]; }
+  function renderOps(d) {
+    var combined = d.kind === 'combined', merge = combined && d.spec.mode === 'merge';
+    var g = group[d.id] || (combined ? 'combined' : 'prepare');
+    var keys = combined ? ['prepare', 'transform', 'combined', 'ai'] : ['prepare', 'transform', 'ai'];
+    var seg = $('opsSeg');
+    seg.style.gridTemplateColumns = 'repeat(' + keys.length + ',minmax(0,1fr))';
+    seg.innerHTML = keys.map(function (k) { return '<button role="tab" aria-selected="' + (g === k) + '" data-group="' + k + '">' + groupLabel(d, k) + '</button>'; }).join('');
+    $('opsOn').textContent = 'on ' + d.name;
+    var list = '';
+    if (g === 'prepare') {
+      list = opItem('cols', 'Remove columns', "Drop columns you don't need", P.cols, '#B42318', '#FCEDEB') +
+        opItem('nulls', 'Remove nulls', 'Drop rows with empty values', P.nulls, '#B4530A', '#FDF1E3', d.nullsAny) +
+        opItem('ren', 'Replace / rename', 'Rename a column or replace values', P.ren, '#2350B8', '#E8EEFC');
+    } else if (g === 'transform') {
+      list = opItem('mergeFrom', 'Merge with another dataset', 'Creates a new merged tab', P.combine, '#3F37C9', '#EFEEFC', 0, order.length >= MAX) +
+        '<p style="margin:8px 10px;font-size:12px;color:var(--muted)">Other transforms (types, split, sort) work the same way: pick, preview, apply.</p>';
+    } else if (g === 'ai') {
+      list = '<div style="padding:0 10px;display:flex;flex-direction:column;gap:12px"><label class="field"><span>Describe a change</span><textarea class="input" placeholder="e.g. &quot;fix the email addresses&quot; or &quot;standardise regions&quot;"></textarea></label>' +
+        '<div style="font-size:12px;font-weight:500;color:var(--ink-2)">Suggested for this dataset</div>' +
+        '<div class="note info">Nothing to suggest: the emails and regions here already look clean.</div>' +
+        '<p style="margin:0;font-size:12px;color:var(--muted)">You review every AI change before it\'s applied.</p></div>';
+    } else if (g === 'combined') {
+      var ov = overlaps(d).length, rname = esc(DS[d.spec.rightId].name);
+      list = '<p style="margin:0 10px 8px;font-size:12px;line-height:1.5;color:var(--muted)">' +
+        (merge ? 'Only for merged datasets. These change how the sources are joined, not the sources themselves.' : 'Only for appended datasets. These change how the sources are stacked, not the sources themselves.') + '</p>' +
+        opItem('editMatch', merge ? 'Edit match' : 'Edit append', merge ? 'Keys and which rows to keep' : 'Change sources or mode', P.edit, '#3F37C9', '#EFEEFC') +
+        (merge ? opItem('unmatched', 'Review unmatched rows', unmatchedCount(d) ? 'Rows with no match in the other source' : 'Every row matched', P.filter, '#B4530A', '#FDF1E3', unmatchedCount(d), !unmatchedCount(d)) : '') +
+        (merge ? opItem('resolve', 'Resolve overlapping columns', ov ? 'Columns that hold the same kind of value' : 'No overlaps found', P.resolve, '#1E6FA8', '#E3F1FB', ov, !ov) : '') +
+        opItem('refresh', 'Refresh from sources', 'Up to date', P.refresh, '#1D6B3A', '#E3F2E8', 0, true) +
+        (merge ? opItem('pickCols', 'Choose source columns', 'What comes in from ' + rname, P.pick, '#3C3F46', '#ECEAE4') : '');
+    }
+    $('opList').innerHTML = list;
+    // forms
+    var firstWithNulls = d.cols.filter(function (c) { return d.empties[c]; })[0];
+    fillSel($('nullColSelect'), d.cols, d.empties, firstWithNulls);
+    fillSel($('otherColSelect'), d.cols, null);
+    [].forEach.call(document.querySelectorAll('[data-scope]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.scope === 'col')); });
+    updateNulls();
+    show(null);
+  }
+  function renderHistory(d) {
+    var html = '<li class="hp-item"><span class="hp-dot"></span><button class="hp-row" aria-current="true"><span class="hp-title" style="font-weight:600">Latest</span></button></li>';
+    d.log.forEach(function (l) {
+      html += '<li class="hp-item"><span class="hp-dot"></span><button class="hp-row"><span class="hp-title">' + l[0] + '</span>' +
+        '<span class="hp-by"><span class="hp-av">23</span>233@email.com</span><span class="hp-date">' + l[1] + '</span></button></li>';
+    });
+    document.querySelector('#histPanel .hp-list').innerHTML = html;
+  }
+  function fillSel(sel, cols, empties, want) {
+    sel.innerHTML = '';
+    cols.forEach(function (c) {
+      var o = document.createElement('option'), k = empties && empties[c];
+      o.value = c; o.textContent = c + (k ? ' (' + fmt(k) + ' empty)' : '');
+      sel.appendChild(o);
+    });
+    sel.value = want || cols[0];
+  }
+  function renderAll() {
+    var d = DS[active];
+    renderTabs(); renderFileBar(d); renderLineage(d); renderHistory(d); renderData(d); renderOps(d);
+  }
+
+  /* ---------- operations panel ---------- */
+  function paint() {   // highlights follow the Remove nulls form: the chosen column, or every empty cell
+    var d = DS[active], on = op === 'nulls';
+    var idx = on && scope === 'col' ? d.cols.indexOf($('nullColSelect').value) : -1;
+    [].forEach.call(thead.querySelectorAll('th'), function (th, i) { th.classList.toggle('hl-col', i === idx); });
+    [].forEach.call(tbody.rows, function (tr) {
+      [].forEach.call(tr.cells, function (td, i) {
+        var empty = td.hasAttribute('data-empty');
+        td.classList.remove('hl-col', 'hl-warn');
+        if (on && empty && (scope === 'any' || i === idx)) { td.classList.add('hl-warn'); td.textContent = 'empty'; }
+        else { if (empty) td.textContent = '—'; if (i === idx) td.classList.add('hl-col'); }
+      });
+    });
+  }
+  function updateNulls() {
+    var d = DS[active], col = $('nullColSelect').value;
+    var n = scope === 'any' ? d.nullsAny : (d.empties[col] || 0);
+    $('nullColField').hidden = scope !== 'col';
+    $('nullNote').className = 'note ' + (n ? 'warn' : 'ok');
+    $('nullIconWarn').hidden = !n; $('nullIconOk').hidden = !!n;
+    $('nullImpact').textContent = n
+      ? fmt(n) + ' of ' + fmt(d.total) + ' rows ' + (scope === 'any' ? 'have at least one empty cell.' : 'have no ' + col + '.')
+      : 'No empty values here. Nothing to remove.';
+    $('nullInfo').hidden = d.nullsAny > 0;
+    $('nullCta').textContent = n ? 'Remove ' + fmt(n) + ' row' + (n > 1 ? 's' : '') : 'Nothing to remove';
+    $('nullCta').disabled = !n;
+    paint();
+  }
+  function setScope(s) {
+    scope = s;
+    [].forEach.call(document.querySelectorAll('[data-scope]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.scope === s)); });
+    updateNulls();
+  }
+  function renderResolve() {
+    var d = DS[active], pairs = overlaps(d), has = pairs.length > 0;
+    var p = pairs[rs.pair] || pairs[0] || ['', ''], l = p[0], r = p[1];
+    $('rsSub').innerHTML = has ? '<span class="mono" style="font-size:12px">' + esc(l) + '</span> (left) and <span class="mono" style="font-size:12px">' + esc(r) + '</span> (right) hold the same kind of value.' : 'No overlapping columns left.';
+    $('rsBody').hidden = !has;
+    if (!has) return;
+    $('rsPairField').hidden = pairs.length < 2;
+    $('rsPair').innerHTML = pairs.map(function (q, i) { return '<option value="' + i + '"' + (q[0] === l && q[1] === r ? ' selected' : '') + '>' + esc(q[0]) + ' ↔ ' + esc(q[1]) + '</option>'; }).join('');
+    var emptyL = d.empties[l] || 0, fillable = d.total ? Math.round(emptyL * d.matched / d.total) : 0;
+    var opts = [['fill', 'Keep ' + l + ', fill blanks from ' + r, 'Recommended'], ['left', 'Keep ' + l + ' only', 'Drops ' + r], ['right', 'Keep ' + r + ' only', 'Drops ' + l], ['both', 'Keep both columns', 'No change']];
+    $('rsChoices').innerHTML = opts.map(function (o) {
+      return '<button class="radio" role="radio" aria-checked="' + (rs.choice === o[0]) + '" data-choice="' + o[0] + '"><span class="dot"></span><span><b>' + esc(o[1]) + '</b><small>' + o[2] + '</small></span></button>';
+    }).join('');
+    var impact = { fill: 'Fills ' + fmt(fillable) + ' of ' + fmt(emptyL) + ' empty ' + l + ' values. One column remains.', left: 'Drops ' + r + '. ' + fmt(emptyL) + ' ' + l + ' values stay empty.', right: 'Drops ' + l + '. Rows without a match will have no value.', both: 'Nothing changes.' }[rs.choice];
+    $('rsNote').className = 'note ' + (rs.choice === 'both' ? 'info' : 'ok');
+    $('rsImpact').textContent = impact;
+    $('rsCta').disabled = rs.choice === 'both';
+  }
+  function renderPick() {
+    var d = DS[active], avail = DS[d.spec.rightId].cols.filter(function (c) { return c !== d.spec.rk; });
+    var chosen = pick || d.spec.rightCols || avail;
+    $('pickSub').textContent = 'Columns brought in from ' + DS[d.spec.rightId].name + '.';
+    $('pickChips').innerHTML = avail.map(function (c) { return '<button class="chip g" aria-pressed="' + (chosen.indexOf(c) > -1) + '" data-pick="' + esc(c) + '">' + esc(c) + '</button>'; }).join('');
+    $('pickKey').textContent = d.spec.rk;
+    $('pickCta').textContent = 'Use ' + chosen.length + ' column' + (chosen.length !== 1 ? 's' : '');
+    $('pickCta').disabled = !chosen.length;
+  }
+  function show(next) {
+    var d = DS[active];
+    op = next;
+    panes.list.hidden = next !== null;
+    panes.nulls.hidden = next !== 'nulls';
+    panes.other.hidden = !OTHER[next];
+    panes.resolve.hidden = next !== 'resolve';
+    panes.pick.hidden = next !== 'pickCols';
+    var back = (group[d.id] || (d.kind === 'combined' ? 'combined' : 'prepare')) === 'combined' ? groupLabel(d, 'combined') : 'All operations';
+    [].forEach.call(document.querySelectorAll('.bk-label'), function (el) { el.textContent = back; });
+    if (OTHER[next]) {
+      $('otherTitle').textContent = OTHER[next][0]; $('otherDesc').textContent = OTHER[next][1];
+      $('otherCta').textContent = OTHER[next][2]; $('renameField').hidden = !OTHER[next][3];
+    }
+    if (next === 'resolve') renderResolve();
+    if (next === 'pickCols') renderPick();
+    paint();
+  }
+
+  /* ---------- tabs ---------- */
+  function activate(id) {
+    active = id; op = null; scope = 'col'; search = ''; unmatchedOnly = false; rs = { choice: 'fill', pair: 0 }; pick = null;
+    renderAll();
+  }
+  var toastTimer;
+  function toast(parts) {   // parts: plain text, or [text] / [text, 'mono-name', text]
+    var el = $('toast'), msg = $('toastMsg');
+    msg.textContent = '';
+    parts.forEach(function (p, i) {
+      if (i % 2 === 1) { var m = document.createElement('span'); m.className = 'mono'; m.textContent = p; msg.appendChild(m); }
+      else msg.appendChild(document.createTextNode(p));
+    });
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, 4200);
+  }
+  function closeTab(id) {
+    var users = order.filter(function (o) { return DS[o].kind === 'combined' && (DS[o].spec.leftId === id || DS[o].spec.rightId === id); });
+    if (users.length) { toast([DS[id].name + ' is used by ', DS[users[0]].name, '. Close that first.']); return; }
+    if (order.length < 2) { toast(['Keep at least one dataset open.']); return; }
+    order.splice(order.indexOf(id), 1); delete DS[id];
+    if (active === id) activate(order[order.length - 1]); else renderAll();
+  }
+
+  /* ---------- merge / append dialog ---------- */
+  var scrim = $('mergeScrim'), left = $('mgLeft'), right = $('mgRight'), lk = $('mgLk'), rk = $('mgRk'), nameEl = $('mgName'), create = $('mgCreate');
+  var dMode = 'merge', dKeep = 'all', editing = null;
+  function fillDatasetOptions() {
+    var html = order.filter(function (id) { return DS[id].kind === 'source'; }).map(function (id) { return '<option value="' + id + '">' + esc(DS[id].name) + ' · ' + fmt(DS[id].total) + ' rows</option>'; }).join('');
+    left.innerHTML = html; right.innerHTML = html;
+  }
+  function pickKeys() {
+    var k = suggestKeys(DS[left.value].cols, DS[right.value].cols);
+    fillSel(lk, DS[left.value].cols, null, k[0]); fillSel(rk, DS[right.value].cols, null, k[1]);
+  }
+  function defaultName() { return shortName(DS[left.value].name) + (dMode === 'append' ? '_plus_' : '_with_') + shortName(DS[right.value].name); }
+  function setKeep(k) {
+    dKeep = k;
+    [].forEach.call(scrim.querySelectorAll('[data-keep]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.keep === k)); });
+  }
+  function appendPreview() {
+    var L = DS[left.value], R = DS[right.value];
+    var shared = L.cols.filter(function (c) { return R.cols.indexOf(c) > -1; }).length;
+    var all = L.cols.length + R.cols.filter(function (c) { return L.cols.indexOf(c) < 0; }).length;
+    var ratio = shared / all, full = shared === all;
+    $('mgAppend').className = 'mg-note ' + (full ? 'mg-ok' : ratio > 0.6 ? 'mg-info' : 'mg-warn');
+    $('mgIconOk').hidden = !full; $('mgIconWarn').hidden = full;
+    $('mgAppendText').textContent = shared + ' of ' + all + ' columns line up' + (full ? '' : '. The rest will be empty for rows from the other dataset') +
+      '. Result: ' + fmt(L.total + R.total) + ' rows.' + (ratio < 0.6 ? ' Append works best on datasets with the same columns.' : '');
+  }
+  function syncDialog() {
+    var merge = dMode === 'merge', same = left.value === right.value;
+    var clash = order.some(function (id) { return DS[id].name === nameEl.value.trim() && id !== editing; });
+    var full = !editing && order.length >= MAX;
+    $('mgTitle').textContent = editing ? (merge ? 'Edit merge' : 'Edit append') : (merge ? 'Merge datasets' : 'Append datasets');
+    $('mgSub').textContent = editing ? 'Updates this tab. The sources stay as they are.' : 'Creates a new dataset in its own tab. The originals stay as they are.';
+    $('mgRightLabel').textContent = merge ? 'Merge with' : 'Append with';
+    $('mgNameLabel').textContent = editing ? 'Dataset name' : 'Name the new dataset';
+    create.textContent = (editing ? 'Update ' : 'Create ') + (merge ? 'merged' : 'appended') + ' dataset';
+    var foot = $('mgFootText');
+    if (full) { foot.innerHTML = '<span style="color:var(--err-ink)">All ' + MAX + ' dataset slots are used. Close a tab first.</span>'; }
+    else foot.textContent = editing ? 'Later changes in this tab are re-applied.' : 'Uses 1 of your ' + (MAX - order.length) + ' free dataset slot' + (MAX - order.length > 1 ? 's' : '');
+    $('mgSame').hidden = !same;
+    $('mgClash').hidden = !clash;
+    $('mgMatch').hidden = same || !merge;
+    $('mgAppend').hidden = same || merge;
+    create.disabled = same || !nameEl.value.trim() || clash || full;
+    if (same) return;
+    if (!merge) { appendPreview(); return; }
+    var st = matchStats({ leftId: left.value, rightId: right.value, lk: lk.value, rk: rk.value });
+    $('mgMatched').textContent = fmt(st.matched);
+    $('mgTotal').textContent = fmt(st.total);
+    $('mgLname').textContent = DS[left.value].name;
+    $('mgUnL').textContent = fmt(st.unL) + " don't";
+    $('mgUnR').textContent = fmt(st.unR) + ' in ' + DS[right.value].name + ' have no match';
+    $('mgBarOk').style.width = (st.total ? st.matched / st.total * 100 : 0) + '%';
+    $('mgNone').hidden = st.matched !== 0;
+    $('mgTip').hidden = !(st.matched > 0 && st.unL > 0 && !!PLACE[left.value + '>' + right.value] && /email/.test(lk.value));
+  }
+  function openDialog(m, editId) {
+    editing = editId || null;
+    fillDatasetOptions();
+    if (editing) {
+      var d = DS[editing], s = d.spec;
+      dMode = s.mode; left.value = s.leftId; right.value = s.rightId;
+      fillSel(lk, DS[s.leftId].cols, null, s.lk); fillSel(rk, DS[s.rightId].cols, null, s.rk);
+      setKeep(s.keep); nameEl.value = d.name;
+    } else {
+      dMode = m;
+      var sources = order.filter(function (id) { return DS[id].kind === 'source'; });
+      var l = DS[active].kind === 'source' ? active : sources[0];
+      left.value = l; right.value = sources.filter(function (id) { return id !== l; })[0] || l;
+      pickKeys(); setKeep('all'); nameEl.value = defaultName();
+    }
+    syncDialog();
+    scrim.hidden = false;
+    left.focus();
+  }
+  function closeDialog() { scrim.hidden = true; }
+  function submitDialog() {
+    var merge = dMode === 'merge', nm = nameEl.value.trim();
+    var spec = { leftId: left.value, rightId: right.value, mode: dMode, lk: lk.value, rk: rk.value, keep: dKeep, rightCols: null };
+    var L = DS[spec.leftId], R = DS[spec.rightId], d;
+    if (editing) {
+      d = DS[editing];
+      spec.rightCols = merge && d.spec.rightId === spec.rightId ? d.spec.rightCols : null;
+      d.spec = spec; d.name = nm; build(d);
+      d.log.unshift([merge ? 'Edited merge settings' : 'Edited append settings', stamp()]);
+      toast([(merge ? 'Merged' : 'Appended') + ' dataset updated.']);
+    } else {
+      d = { id: 'c' + (++seq), kind: 'combined', name: nm, badge: ['⇄', '#EFEEFC', '#3F37C9'], spec: spec, changes: 0,
+        log: [[(merge ? 'Merged ' : 'Appended ') + esc(L.name) + ' + ' + esc(R.name), stamp()]] };
+      build(d);
+      DS[d.id] = d; order.push(d.id); group[d.id] = 'combined';
+      toast(['Created ', nm, ' in a new tab. Both sources are unchanged.']);
+    }
+    closeDialog();
+    activate(d.id);
+    var tab = document.querySelector('.ds-tab[aria-current="true"] .ds-main'); if (tab) tab.focus();
+  }
+
+  /* ---------- events ---------- */
+  $('mergeItem').addEventListener('click', function () { openDialog('merge'); });
+  var fileInput = $('fileInput');
+  $('ovAdd').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-add]');
+    if (!b || b.disabled) return;
+    if (b.dataset.add === 'upload') fileInput.click(); else addDemo(b.dataset.add);
+  });
+  fileInput.addEventListener('change', function () { var file = fileInput.files[0]; fileInput.value = ''; if (file) importFile(file); });
+  $('appendItem').addEventListener('click', function () { openDialog('append'); });
+  $('mgClose').addEventListener('click', function () { closeDialog(); $('addBtn').focus(); });
+  $('mgCancel').addEventListener('click', function () { closeDialog(); $('addBtn').focus(); });
+  create.addEventListener('click', submitDialog);
+  var downOnScrim = false;
+  scrim.addEventListener('mousedown', function (e) { downOnScrim = e.target === scrim; });
+  scrim.addEventListener('click', function (e) {
+    if (e.target === scrim && downOnScrim) { closeDialog(); $('addBtn').focus(); return; }
+    var b = e.target.closest('[data-keep]');
+    if (b) { setKeep(b.dataset.keep); syncDialog(); }
+  });
+  left.addEventListener('change', function () { pickKeys(); if (!editing) nameEl.value = defaultName(); syncDialog(); });
+  right.addEventListener('change', function () { pickKeys(); if (!editing) nameEl.value = defaultName(); syncDialog(); });
+  lk.addEventListener('change', syncDialog);
+  rk.addEventListener('change', syncDialog);
+  nameEl.addEventListener('input', syncDialog);
+  // Escape closes the dialog; Tab stays inside it
+  document.addEventListener('keydown', function (e) {
+    if (scrim.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closeDialog(); $('addBtn').focus(); return; }
+    if (e.key !== 'Tab') return;
+    var f = [].filter.call(scrim.querySelectorAll('button, select, input'), function (el) { return !el.disabled && el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }, true);
+
+  document.querySelector('nav[aria-label="Open datasets"]').addEventListener('click', function (e) {
+    var main = e.target.closest('.ds-main'), x = e.target.closest('.ds-x');
+    if (main) activate(main.parentNode.dataset.ds);
+    else if (x) closeTab(x.parentNode.dataset.ds);
+  });
+  $('lineage').addEventListener('click', function (e) {
+    var go = e.target.closest('[data-go]');
+    if (go) activate(go.dataset.go);
+    else if (e.target.closest('[data-edit]')) openDialog(null, active);
+  });
+  $('showAll').addEventListener('click', function () { unmatchedOnly = false; renderData(DS[active]); });
+  $('searchInput').addEventListener('input', function (e) { search = e.target.value; renderTable(); });
+  $('ops').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-group], [data-op], [data-op-back], [data-scope], [data-choice], [data-pick]');
+    if (!t) return;
+    var d = DS[active];
+    if (t.dataset.group) { group[d.id] = t.dataset.group; unmatchedOnly = false; renderData(d); renderOps(d); return; }
+    if (t.dataset.scope) { setScope(t.dataset.scope); return; }
+    if (t.dataset.choice) { rs.choice = t.dataset.choice; renderResolve(); return; }
+    if (t.dataset.pick) {
+      var avail = DS[d.spec.rightId].cols.filter(function (c) { return c !== d.spec.rk; });
+      var cur = pick || d.spec.rightCols || avail, c = t.dataset.pick;
+      pick = cur.indexOf(c) > -1 ? cur.filter(function (x) { return x !== c; }) : avail.filter(function (x) { return cur.indexOf(x) > -1 || x === c; });
+      renderPick(); return;
+    }
+    if (t.hasAttribute('data-op-back')) { show(null); return; }
+    var k = t.dataset.op;
+    if (k === 'mergeFrom') openDialog('merge');
+    else if (k === 'editMatch') openDialog(null, active);
+    else if (k === 'unmatched') { unmatchedOnly = true; renderData(d); }
+    else show(k);
+  });
+  $('nullColSelect').addEventListener('change', updateNulls);
+  $('rsPair').addEventListener('change', function (e) { rs = { choice: 'fill', pair: +e.target.value }; renderResolve(); });
+
+  // Small API for the share / download dialog
+  window.studio = {
+    current: function () { var d = DS[active]; return { name: d.name, total: d.total, cols: d.cols.length, changes: d.changes, kind: d.kind }; },
+    toast: toast
+  };
+
+  renderAll();
+})();
+
+// Share or download: opens from the Export menu. A format goes straight to "preparing", "Share link…" opens the link settings.
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var api = window.studio;
+  var scrim = $('shareScrim'), tab = 'link';
+  var FMT = { csv: ['CSV', '.csv'], xlsx: ['Excel', '.xlsx'], json: ['JSON', '.json'], xml: ['XML', '.xml'] };
+  var ACCESS = { anyone: 'Anyone with the link', workspace: 'People in this workspace', invite: 'Only people I invite' };
+  var DELAY = 1600;
+  var links = {};                       // the active link for each dataset, by name
+  var st = { link: 'form', dl: 'form' };
+  var timers = {};
+  var draft = null;
+
+  function iso(days) { var d = new Date(); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function niceDate(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function defaults() { return { perm: 'view', access: 'anyone', expOn: true, expDate: iso(30), pwOn: false, pw: '', noDl: false }; }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function fileBase(name) { return name.replace(/\.[a-z0-9]+$/i, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+  function newUrl() { return 'https://studio.example/s/' + Math.random().toString(36).slice(2, 10); }
+  function live(msg) { $('shLive').textContent = msg; }
+
+  /* ----- link form <-> draft ----- */
+  function writeForm() {
+    var s = draft;
+    [].forEach.call(document.querySelectorAll('[data-perm]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.perm === s.perm)); });
+    $('shPermText').textContent = 'People with this link can ' + s.perm;
+    $('shAccess').value = s.access;
+    $('shExp').checked = s.expOn; $('shExpDate').value = s.expDate; $('shExpDate').min = iso(0);
+    $('shPwOn').checked = s.pwOn; $('shPw').value = s.pw;
+    $('shNoDl').checked = s.noDl;
+    syncForm();
+  }
+  function syncForm() {
+    var s = draft;
+    $('shExpState').textContent = s.expOn ? 'On' : 'Off'; $('shExpDate').hidden = !s.expOn;
+    $('shPwState').textContent = s.pwOn ? 'On' : 'Off'; $('shPw').hidden = !s.pwOn;
+    $('shDisState').textContent = s.noDl ? 'On' : 'Off';
+    var pwBad = s.pwOn && s.pw.length < 4, dateBad = s.expOn && !s.expDate;
+    $('shPwErr').hidden = !(pwBad && s.pw.length > 0);
+    $('shCreate').disabled = pwBad || dateBad;
+    $('shCreate').textContent = links[api.current().name] ? 'Save changes' : 'Create link';
+  }
+  function readForm() {
+    var s = draft;
+    s.access = $('shAccess').value; s.expOn = $('shExp').checked; s.expDate = $('shExpDate').value;
+    s.pwOn = $('shPwOn').checked; s.pw = $('shPw').value; s.noDl = $('shNoDl').checked;
+    syncForm();
+  }
+
+  /* ----- rendering ----- */
+  function render() {
+    var d = api.current();
+    $('shSub').textContent = d.name + ' · ' + d.total.toLocaleString('en-US') + ' rows · ' + d.cols + ' columns' + (d.changes ? ' · ' + d.changes + ' change' + (d.changes > 1 ? 's' : '') + ' applied' : '');
+    [].forEach.call(document.querySelectorAll('.sh-tab'), function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
+    $('shLinkPane').hidden = tab !== 'link'; $('shDlPane').hidden = tab !== 'dl';
+    $('shLinkForm').hidden = st.link !== 'form'; $('shLinkBusy').hidden = st.link !== 'busy'; $('shLinkReady').hidden = st.link !== 'ready';
+    $('shDlForm').hidden = st.dl !== 'form'; $('shDlBusy').hidden = st.dl !== 'busy'; $('shDlReady').hidden = st.dl !== 'ready';
+    var f = FMT[$('shFmt').value];
+    $('shDlTitle').textContent = 'Download ' + d.name;
+    $('shDlDesc').textContent = 'All ' + d.total.toLocaleString('en-US') + ' rows and ' + d.cols + ' columns' + (d.changes ? ', with your ' + d.changes + ' change' + (d.changes > 1 ? 's' : '') + ' applied' : '') + '.';
+    $('shDlBusyText').textContent = 'Preparing your ' + f[0] + ' file…';
+    $('shDlReadyDesc').textContent = 'After downloading your ' + f[0] + ' file, check it to make sure everything looks ok.';
+    $('shDlFile').textContent = 'Download ' + fileBase(d.name) + f[1];
+    var l = links[d.name];
+    $('shLinkBusyText').textContent = l ? 'Updating your link…' : 'Creating your link…';
+    if (l && st.link === 'ready') fillReady(l);
+  }
+  function fillReady(l) {
+    var s = l.settings;
+    $('shUrl').value = l.url;
+    $('shReadyDesc').textContent = ({ anyone: 'Anyone with the link', workspace: 'People in this workspace', invite: 'People you invite' })[s.access] + ' can ' + s.perm + ' this dataset.';
+    var chips = [ACCESS[s.access], s.perm === 'edit' ? 'Can edit' : 'Can view', s.expOn ? 'Expires ' + niceDate(s.expDate) : 'No expiry', s.pwOn ? 'Password required' : 'No password', s.noDl ? 'Downloads off' : 'Downloads on'];
+    $('shChips').innerHTML = chips.map(function (c) { return '<li>' + c.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>'; }).join('');
+  }
+
+  /* ----- open / close ----- */
+  function open(which, o) {
+    o = o || {};
+    var d = api.current(), l = links[d.name];
+    clearTimeout(timers.link); clearTimeout(timers.dl);
+    tab = which;
+    draft = l ? clone(l.settings) : defaults();
+    st.link = l ? 'ready' : 'form';
+    st.dl = 'form';
+    if (o.fmt) $('shFmt').value = o.fmt;
+    writeForm();
+    scrim.hidden = false;
+    render();
+    if (which === 'dl' && o.auto) { startDl(); return; }
+    focusPane();
+  }
+  function close() {
+    clearTimeout(timers.link); clearTimeout(timers.dl);
+    scrim.hidden = true;
+    $('dlBtn').focus();
+  }
+  function focusPane() {
+    var el = tab === 'link'
+      ? (st.link === 'ready' ? $('shCopy') : st.link === 'busy' ? $('shLinkBusyCancel') : document.querySelector('[data-perm][aria-checked="true"]'))
+      : (st.dl === 'ready' ? $('shDlFile') : st.dl === 'busy' ? $('shDlBusyCancel') : $('shFmt'));
+    if (el) el.focus();
+  }
+
+  /* ----- link ----- */
+  function startLink() {
+    var name = api.current().name;
+    st.link = 'busy'; render(); focusPane();
+    live($('shLinkBusyText').textContent);
+    timers.link = setTimeout(function () {
+      var prev = links[name];
+      links[name] = { settings: clone(draft), url: prev ? prev.url : newUrl() };
+      st.link = 'ready'; render(); focusPane();
+      live('Your link is ready.');
+    }, DELAY);
+  }
+  function cancelLink() {
+    clearTimeout(timers.link);
+    st.link = links[api.current().name] ? 'ready' : 'form';
+    render(); focusPane();
+  }
+
+  /* ----- download ----- */
+  function startDl() {
+    st.dl = 'busy'; tab = 'dl'; render(); focusPane();
+    live($('shDlBusyText').textContent);
+    timers.dl = setTimeout(function () {
+      st.dl = 'ready'; render(); focusPane();
+      live('Your download is ready.');
+    }, DELAY);
+  }
+  function cancelDl() { clearTimeout(timers.dl); st.dl = 'form'; render(); focusPane(); }
+
+  /* ----- events ----- */
+  $('shClose').addEventListener('click', close);
+  $('shCancel').addEventListener('click', close);
+  var downOnScrim = false;
+  scrim.addEventListener('mousedown', function (e) { downOnScrim = e.target === scrim; });
+  scrim.addEventListener('click', function (e) { if (e.target === scrim && downOnScrim) close(); });
+  [].forEach.call(document.querySelectorAll('.sh-tab'), function (b) {
+    b.addEventListener('click', function () { tab = b.dataset.tab; render(); });
+  });
+  [].forEach.call(document.querySelectorAll('[data-perm]'), function (b) {
+    b.addEventListener('click', function () { draft.perm = b.dataset.perm; writeForm(); });
+  });
+  ['shAccess', 'shExp', 'shExpDate', 'shPwOn', 'shPw', 'shNoDl'].forEach(function (id) {
+    $(id).addEventListener('input', readForm); $(id).addEventListener('change', readForm);
+  });
+  $('shPwOn').addEventListener('change', function () { if ($('shPwOn').checked) $('shPw').focus(); });
+  $('shCreate').addEventListener('click', startLink);
+  $('shLinkBusyCancel').addEventListener('click', cancelLink);
+  $('shEdit').addEventListener('click', function () { draft = clone(links[api.current().name].settings); writeForm(); st.link = 'form'; render(); focusPane(); });
+  $('shDelete').addEventListener('click', function () {
+    delete links[api.current().name]; draft = defaults(); writeForm(); st.link = 'form'; render();
+    api.toast(['Link deleted. It no longer works.']);
+    focusPane();
+  });
+  $('shCopy').addEventListener('click', function () {
+    var url = $('shUrl').value, btn = $('shCopy');
+    var done = function () { btn.textContent = 'Copied'; live('Link copied.'); setTimeout(function () { btn.textContent = 'Copy link'; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { $('shUrl').select(); document.execCommand('copy'); done(); });
+    else { $('shUrl').select(); document.execCommand('copy'); done(); }
+  });
+  $('shFmt').addEventListener('change', render);
+  $('shDlGo').addEventListener('click', startDl);
+  $('shDlBusyCancel').addEventListener('click', cancelDl);
+  $('shDlAgain').addEventListener('click', function () { st.dl = 'form'; render(); focusPane(); });
+  $('shDlFile').addEventListener('click', function () {
+    var d = api.current(), f = FMT[$('shFmt').value];
+    close();
+    api.toast(['Download started: ', fileBase(d.name) + f[1]]);
+  });
+
+  // Export menu: a file format goes straight to "preparing"; the popup's Share link tab holds the link settings
+  [].forEach.call(document.querySelectorAll('#ovDl [data-fmt]'), function (b) {
+    if (FMT[b.dataset.fmt]) b.addEventListener('click', function () { open('dl', { fmt: b.dataset.fmt, auto: true }); });
+  });
+
+  // Escape closes the dialog; Tab stays inside it
+  document.addEventListener('keydown', function (e) {
+    if (scrim.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); return; }
+    if (e.key !== 'Tab') return;
+    var f = [].filter.call(scrim.querySelectorAll('button, select, input'), function (el) { return !el.disabled && el.offsetParent !== null && el.type !== 'hidden'; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }, true);
+})();
+
+// Version history: a docked side panel that sits beside the tabs, file bar and work area
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var btn = $('histBtn'), panel = $('histPanel'), close = $('histClose');
+  btn.setAttribute('aria-controls', 'histPanel');
+
+  function set(open, returnFocus) {
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) close.focus(); else if (returnFocus) btn.focus();
+  }
+  btn.addEventListener('click', function () { set(panel.hidden); });
+  close.addEventListener('click', function () { set(false, true); });
+  // Escape closes the panel, unless it is closing a menu or ending a workspace rename
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || panel.hidden || e.target.id === 'wsName') return;
+    if (document.querySelector('#ovAdd:not([hidden]), #ovDl:not([hidden]), #mergeScrim:not([hidden]), #shareScrim:not([hidden])')) return;
+    set(false, true);
+  }, true);
+  // Pick a version
+  panel.addEventListener('click', function (e) {
+    var row = e.target.closest('.hp-row');
+    if (!row) return;
+    [].forEach.call(panel.querySelectorAll('.hp-row'), function (r) { r.removeAttribute('aria-current'); });
+    row.setAttribute('aria-current', 'true');
+  });
+})();
+</script></body>
+</html>
